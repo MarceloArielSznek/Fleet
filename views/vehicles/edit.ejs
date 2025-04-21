@@ -1,0 +1,167 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2>Edit Vehicle</h2>
+  <div class="page-actions">
+    <a href="/vehicles/<%= vehicle.id %>" class="btn btn-primary">
+      <i class="fas fa-eye"></i> View Details
+    </a>
+    <a href="/vehicles" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Vehicle Information</h3>
+  </div>
+  <div class="card-body">
+    <form action="/vehicles/<%= vehicle.id %>" method="POST" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="plate" class="form-label">License Plate</label>
+          <input type="text" id="plate" name="plate" class="form-control" value="<%= vehicle.plate %>" required>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="vin" class="form-label">VIN</label>
+          <input type="text" id="vin" name="vin" class="form-control" value="<%= vehicle.vin || '' %>" placeholder="Vehicle Identification Number">
+          <small class="form-text text-muted">Unique manufacturer serial number</small>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="brand" class="form-label">Brand</label>
+          <input type="text" id="brand" name="brand" class="form-control" value="<%= vehicle.brand %>" required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="model" class="form-label">Model</label>
+          <input type="text" id="model" name="model" class="form-control" value="<%= vehicle.model %>" required>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="year" class="form-label">Year</label>
+          <input type="number" id="year" name="year" class="form-control" min="1900" max="<%= new Date().getFullYear() + 1 %>" value="<%= vehicle.year %>" required>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="type" class="form-label">Type</label>
+          <select id="type" name="type" class="form-control">
+            <option value="car" <%= vehicle.type === 'car' ? 'selected' : '' %>>Car</option>
+            <option value="truck" <%= vehicle.type === 'truck' ? 'selected' : '' %>>Truck</option>
+            <option value="van" <%= vehicle.type === 'van' ? 'selected' : '' %>>Van</option>
+            <option value="motorcycle" <%= vehicle.type === 'motorcycle' ? 'selected' : '' %>>Motorcycle</option>
+            <option value="other" <%= vehicle.type === 'other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-control">
+            <option value="active" <%= vehicle.status === 'active' ? 'selected' : '' %>>Active</option>
+            <option value="maintenance" <%= vehicle.status === 'maintenance' ? 'selected' : '' %>>In Maintenance</option>
+            <option value="retired" <%= vehicle.status === 'retired' ? 'selected' : '' %>>Retired</option>
+          </select>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="lastMaintenance" class="form-label">Last Maintenance</label>
+          <input type="date" id="lastMaintenance" name="lastMaintenance" class="form-control" value="<%= vehicle.lastMaintenance ? vehicle.lastMaintenance.split('T')[0] : '' %>">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="driver" class="form-label">Driver</label>
+          <input type="text" id="driver" name="driver" class="form-control" value="<%= vehicle.driver || '' %>">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="fuelType" class="form-label">Fuel Type</label>
+          <select id="fuelType" name="fuelType" class="form-control" required>
+            <option value="gasoline" <%= vehicle.fuelType === 'gasoline' ? 'selected' : '' %>>Gasoline</option>
+            <option value="diesel" <%= vehicle.fuelType === 'diesel' ? 'selected' : '' %>>Diesel</option>
+            <option value="electric" <%= vehicle.fuelType === 'electric' ? 'selected' : '' %>>Electric</option>
+            <option value="hybrid" <%= vehicle.fuelType === 'hybrid' ? 'selected' : '' %>>Hybrid</option>
+            <option value="other" <%= vehicle.fuelType === 'other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="mileage" class="form-label">Mileage</label>
+          <input type="number" id="mileage" name="mileage" class="form-control" min="0" value="<%= vehicle.mileage %>">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="vehicleImage" class="form-label">Vehicle Image</label>
+        <div class="image-upload-container">
+          <div class="image-preview" id="imagePreview">
+            <% if (vehicle.image) { %>
+              <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>" id="previewImg">
+            <% } else { %>
+              <img src="/images/vehicles/default-vehicle.svg" alt="No image" id="previewImg">
+              <span class="image-placeholder">Select image</span>
+            <% } %>
+          </div>
+          <input type="file" id="vehicleImage" name="vehicleImage" class="form-control-file" accept="image/*">
+          <small class="form-text text-muted">Allowed formats: JPG, PNG, GIF. Maximum size: 5MB</small>
+          
+          <% if (vehicle.image) { %>
+            <div class="form-check mt-2">
+              <input type="checkbox" id="deleteImage" name="deleteImage" class="form-check-input">
+              <label for="deleteImage" class="form-check-label">Delete current image</label>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <a href="/vehicles" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Image preview
+  document.getElementById('vehicleImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    const preview = document.getElementById('previewImg');
+    const placeholder = document.querySelector('.image-placeholder');
+    
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+    };
+    
+    reader.readAsDataURL(file);
+  });
+  
+  // Handle "Delete image" option
+  const deleteImageCheckbox = document.getElementById('deleteImage');
+  if (deleteImageCheckbox) {
+    deleteImageCheckbox.addEventListener('change', function() {
+      const fileInput = document.getElementById('vehicleImage');
+      if (this.checked) {
+        fileInput.disabled = true;
+      } else {
+        fileInput.disabled = false;
+      }
+    });
+  }
+</script>
+
+<%- include('../partials/footer') %> 

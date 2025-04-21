@@ -1,0 +1,125 @@
+<%- include('partials/header') %>
+
+
+
+
+<!-- Vehicle Carousel -->
+<div class="carousel-container">
+  <h3 class="section-title">Featured Vehicles</h3>
+  
+  <div class="carousel-controls">
+    <button class="carousel-btn prev-btn" aria-label="Previous">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="carousel" id="vehicles-carousel">
+      <div class="carousel-inner" id="carousel-inner">
+        <% if (vehicles && vehicles.length > 0) { %>
+          <% vehicles.forEach(vehicle => { %>
+            <div class="vehicle-card">
+              <div class="vehicle-card-image">
+                <% if (vehicle.image) { %>
+                  <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>">
+                <% } else { %>
+                  <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>">
+                <% } %>
+                <% if (vehicle.status === 'active') { %>
+                  <span class="vehicle-status status-active">Active</span>
+                <% } else if (vehicle.status === 'maintenance') { %>
+                  <span class="vehicle-status status-maintenance">Maintenance</span>
+                <% } else { %>
+                  <span class="vehicle-status status-retired">Retired</span>
+                <% } %>
+              </div>
+              <div class="vehicle-card-content">
+                <h4><%= vehicle.brand %> <%= vehicle.model %></h4>
+                <div class="vehicle-info">
+                  <span><i class="fas fa-calendar-alt"></i> <%= vehicle.year %></span>
+                  <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> km</span>
+                </div>
+                <div class="vehicle-plate"><%= vehicle.plate %></div>
+                <a href="/vehicles/<%= vehicle.id %>" class="btn btn-sm btn-primary">View details</a>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="vehicle-card empty-card">
+            <div class="vehicle-card-content text-center">
+              <i class="fas fa-car fa-3x mb-2"></i>
+              <h4>No vehicles</h4>
+              <p>There are no vehicles registered in the system yet.</p>
+              <a href="/vehicles/create" class="btn btn-sm btn-primary">Add vehicle</a>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <button class="carousel-btn next-btn" aria-label="Next">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  
+  <div class="carousel-indicators" id="carousel-indicators">
+    <!-- Dynamically generated indicators -->
+  </div>
+</div>
+
+<div class="dashboard">
+  <div class="row">
+    <!-- Vehicles card -->
+    <div class="dashboard-card">
+      <div class="dashboard-card-icon">
+        <i class="fas fa-car"></i>
+      </div>
+      <div class="dashboard-card-content">
+        <h3>Vehicles</h3>
+        <p class="dashboard-card-number"><%= vehicles ? vehicles.length : 0 %></p>
+        <a href="/vehicles" class="dashboard-card-link">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+    
+    <!-- Maintenance card -->
+    <div class="dashboard-card">
+      <div class="dashboard-card-icon warning">
+        <i class="fas fa-tools"></i>
+      </div>
+      <div class="dashboard-card-content">
+        <h3>Maintenance</h3>
+        <p class="dashboard-card-number">
+          <% 
+            let maintenanceCount = 0;
+            if (vehicles) {
+              vehicles.forEach(v => {
+                if (v.status === 'maintenance') maintenanceCount++;
+              });
+            }
+          %>
+          <%= maintenanceCount %>
+        </p>
+        <a href="#" class="dashboard-card-link">View details <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+    
+    <!-- Drivers card -->
+    <div class="dashboard-card">
+      <div class="dashboard-card-icon success">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="dashboard-card-content">
+        <h3>Drivers</h3>
+        <p class="dashboard-card-number">
+          <% 
+            let driversCount = 0;
+            if (vehicles) {
+              vehicles.forEach(v => {
+                if (v.driver) driversCount++;
+              });
+            }
+          %>
+          <%= driversCount %>
+        </p>
+        <a href="#" class="dashboard-card-link">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+  
+<%- include('partials/footer') %> 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="300" fill="#f0f0f0"/>
+  <g transform="translate(250, 150)">
+    <path d="M-70,30 L-100,30 L-100,10 Q-100,-10 -80,-10 L80,-10 Q100,-10 100,10 L100,30 L70,30 L70,50 L-70,50 Z" fill="#aaa"/>
+    <circle cx="-60" cy="50" r="15" fill="#666"/>
+    <circle cx="60" cy="50" r="15" fill="#666"/>
+    <rect x="-80" y="-40" width="160" height="30" rx="10" fill="#aaa"/>
+    <text x="0" y="80" font-family="Arial" font-size="18" text-anchor="middle" fill="#333">Sin imagen disponible</text>
+  </g>
+</svg> 

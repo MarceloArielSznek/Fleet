@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1745243167434",
+    "plate": "XYZ789",
+    "brand": "Ford",
+    "model": "Transit",
+    "year": "2022",
+    "type": "van",
+    "status": "active",
+    "lastMaintenance": "2025-04-21",
+    "driver": "",
+    "fuelType": "gasoline",
+    "mileage": "765000",
+    "image": "/images/vehicles/vehicle-1745243167426-692170686.jpg",
+    "createdAt": "2025-04-21T13:46:07.434Z",
+    "updatedAt": "2025-04-21T13:56:30.745Z",
+    "vin": "3VWED21C82M443315"
+  },
+  {
+    "id": "1745243274861",
+    "plate": "DEF456",
+    "brand": "Ford",
+    "model": "Transit",
+    "year": "2019",
+    "type": "van",
+    "status": "maintenance",
+    "lastMaintenance": "2025-04-17",
+    "driver": "",
+    "fuelType": "gasoline",
+    "mileage": "998874",
+    "image": "/images/vehicles/vehicle-1745243298323-627128768.jpg",
+    "createdAt": "2025-04-21T13:47:54.861Z",
+    "updatedAt": "2025-04-21T13:48:18.332Z"
+  }
+]
