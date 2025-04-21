@@ -954,7 +954,7 @@ body {
 
 .vehicle-detail-image {
   width: 100%;
-  border-radius: 8px 8px 0 0;
+  border-radius: 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: #f9f9f9;
   object-fit: cover;
@@ -962,21 +962,60 @@ body {
 }
 
 .vehicle-name {
-  padding: 10px 15px;
+  padding: 15px;
   border-bottom: 1px solid #eee;
+  border-radius: 8px 8px 0 0;
+  background-color: var(--secondary-color);
+  color: #fff;
 }
 
 .vehicle-name h3 {
   margin: 0 0 5px;
   font-size: 1.3rem;
-  color: var(--dark-color);
+  color: #fff;
 }
 
 .vehicle-name .vehicle-status-badge {
   font-size: 0.7rem;
   padding: 3px 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
+/* Estilos para la información clave */
+.vehicle-key-info {
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.key-info-item {
+  margin-bottom: 12px;
+}
+
+.key-info-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+
+.key-info-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.vehicle-key-info .vehicle-plate {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--secondary-color);
+  color: white;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Asegurar que el contenedor de información tenga la misma altura */
 .vehicle-info-container {
   flex: 1;
   min-width: 300px;
@@ -997,63 +1036,30 @@ body {
   overflow-y: auto;
 }
 
-.vehicle-status-badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  margin-left: 10px;
-  vertical-align: middle;
-}
-
-/* Modificación para la página de detalles donde el estado aparece al lado del título */
-.page-header h2 .vehicle-status-badge {
-  font-size: 0.6rem;
-  padding: 4px 10px;
-  vertical-align: middle;
-  position: relative;
-  top: -2px;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.detail-item {
+/* Reestilizar los botones de acción para que se vean mejor horizontalmente */
+.detail-actions {
   display: flex;
-  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
-.detail-label {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 5px;
+.detail-actions .btn {
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
 }
 
-.detail-value {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--dark-color);
+.detail-actions .btn i {
+  margin-right: 5px;
 }
 
-.vehicle-plate {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: var(--secondary-color);
-  color: white;
-  border-radius: 5px;
-  font-weight: 600;
+.detail-actions .delete-form {
+  display: inline;
 }
 
+/* Estilos para los timestamps */
 .detail-timestamps {
-  display: flex;
-  justify-content: space-between;
   color: #777;
   font-size: 0.85rem;
   margin-top: 20px;
@@ -1061,37 +1067,9 @@ body {
   border-top: 1px solid #eee;
 }
 
-.detail-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.delete-form {
-  display: inline;
-}
-
-@media (max-width: 768px) {
-  .vehicle-detail-container {
-    flex-direction: column;
-  }
-  
-  .vehicle-image-container {
-    flex: 0 0 auto;
-    margin-bottom: 20px;
-  }
-  
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .detail-actions {
-    flex-direction: column;
-  }
-  
-  .detail-actions .btn {
-    width: 100%;
-  }
+.timestamp-row {
+  margin-bottom: 5px;
+  line-height: 1.4;
 }
 
 /* Estilos para el módulo de mantenimiento */
@@ -1246,4 +1224,63 @@ body {
   line-height: 1.4;
 }
 
-/* Fin de estilos para el módulo de mantenimiento */ 
+/* Fin de estilos para el módulo de mantenimiento */
+
+/* Estilos para el grid de detalles */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.detail-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+/* Modificación para la página de detalles donde el estado aparece al lado del título */
+.page-header h2 .vehicle-status-badge {
+  font-size: 0.6rem;
+  padding: 4px 10px;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .vehicle-detail-container {
+    flex-direction: column;
+  }
+  
+  .vehicle-image-container {
+    flex: 0 0 auto;
+    margin-bottom: 20px;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-actions {
+    flex-direction: column;
+  }
+  
+  .detail-actions .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+} 
