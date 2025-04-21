@@ -946,15 +946,24 @@ body {
 }
 
 .vehicle-status-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  display: inline-block;
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* Modificación para la página de detalles donde el estado aparece al lado del título */
+.page-header h2 .vehicle-status-badge {
+  font-size: 0.6rem;
+  padding: 4px 10px;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
 }
 
 .detail-grid {

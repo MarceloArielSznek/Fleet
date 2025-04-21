@@ -1,7 +1,12 @@
 <%- include('../partials/header') %>
 
 <div class="page-header">
-  <h2><%= vehicle.brand %> <%= vehicle.model %></h2>
+  <h2>
+    <%= vehicle.brand %> <%= vehicle.model %>
+    <span class="vehicle-status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
+      <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %>
+    </span>
+  </h2>
   <div class="page-actions">
     <a href="/vehicles/<%= vehicle.id %>/edit" class="btn btn-primary">
       <i class="fas fa-edit"></i> Edit
@@ -19,10 +24,6 @@
     <% } else { %>
       <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
     <% } %>
-    
-    <div class="vehicle-status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
-      <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %>
-    </div>
   </div>
   
   <div class="vehicle-info-container">
