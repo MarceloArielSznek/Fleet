@@ -228,28 +228,70 @@ body {
   background-color: #c0392b;
 }
 
-/* Formularios */
+/* Form Layout */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -10px;
+  margin-left: -10px;
+}
+
+.form-col {
+  flex: 1;
+  padding: 0 10px;
+  min-width: 0; /* Prevents overflow issues */
+}
+
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .form-label {
-  display: block;
+  font-weight: 500;
   margin-bottom: 0.5rem;
-  font-weight: 600;
+  display: block;
 }
 
-.form-control {
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+/* Estilos unificados para elementos de formulario */
+.form-control,
+select.form-control,
+input[type="date"].form-control,
+input[type="number"].form-control,
+input[type="text"].form-control,
+textarea.form-control {
+  display: block;
   width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  height: 38px;
+  padding: 0.5rem 0.75rem;
   font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  appearance: auto;
+}
+
+/* Excepción para textarea que tiene altura automática */
+textarea.form-control {
+  height: auto;
+  min-height: 38px;
 }
 
 .form-control:focus {
-  outline: none;
+  color: #495057;
+  background-color: #fff;
   border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
 /* Tablas */
@@ -586,39 +628,6 @@ body {
   color: var(--danger-color);
 }
 
-/* Form styles updates */
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.form-label {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.form-control {
-  display: block;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #495057;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.form-control:focus {
-  color: #495057;
-  background-color: #fff;
-  border-color: var(--primary-color);
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-}
-
 /* Utility Classes */
 .mt-3 {
   margin-top: 1.5rem;
@@ -861,104 +870,6 @@ body {
   
   .carousel-inner {
     padding: 5px 0;
-  }
-}
-
-/* Formularios mejorados */
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -10px;
-}
-
-.form-col {
-  flex: 1;
-  padding: 0 10px;
-  min-width: 200px;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-/* Carga de imágenes */
-.image-upload-container {
-  margin-bottom: 1rem;
-}
-
-.image-preview {
-  width: 200px;
-  height: 150px;
-  border: 2px dashed #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background-color: #f9f9f9;
-}
-
-.image-preview img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
-}
-
-.image-placeholder {
-  color: #777;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.form-control-file {
-  display: block;
-  margin-top: 0.5rem;
-  width: 100%;
-}
-
-.form-check {
-  display: flex;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-
-.form-check-input {
-  margin-right: 0.5rem;
-}
-
-.form-text {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 0.25rem;
-}
-
-/* Mejoras para adaptarse a diferentes tamaños */
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
-  
-  .form-col {
-    margin-bottom: 1rem;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .form-actions .btn {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-  
-  .image-preview {
-    width: 100%;
-    height: 200px;
   }
 }
 
@@ -1407,4 +1318,106 @@ body {
 .action-cell {
   white-space: nowrap;
   width: 120px;
+}
+
+/* Carga de imágenes */
+.image-upload-container {
+  margin-bottom: 1rem;
+}
+
+.image-preview {
+  width: 200px;
+  height: 150px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #f9f9f9;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.image-placeholder {
+  color: #777;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.form-control-file {
+  display: block;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.form-check-input {
+  margin-right: 0.5rem;
+}
+
+.form-text {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 0.25rem;
+}
+
+/* Mejoras para adaptarse a diferentes tamaños */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .form-col {
+    margin-bottom: 1rem;
+    width: 100%;
+    flex: none;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .image-preview {
+    width: 100%;
+    height: 200px;
+  }
+}
+
+.vehicle-nickname {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.vehicle-name-display {
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+  margin-bottom: 8px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.vehicle-name-small {
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 2px;
+  margin-bottom: 3px;
 } 
