@@ -23,16 +23,18 @@
                 <% } else { %>
                   <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>">
                 <% } %>
-                <% if (vehicle.status === 'active') { %>
-                  <span class="vehicle-status status-active">Active</span>
-                <% } else if (vehicle.status === 'maintenance') { %>
-                  <span class="vehicle-status status-maintenance">Maintenance</span>
-                <% } else { %>
-                  <span class="vehicle-status status-retired">Retired</span>
-                <% } %>
               </div>
               <div class="vehicle-card-content">
-                <h4><%= vehicle.brand %> <%= vehicle.model %></h4>
+                <h4>
+                  <%= vehicle.brand %> <%= vehicle.model %>
+                  <% if (vehicle.status === 'active') { %>
+                    <span class="vehicle-status-badge status-active">Active</span>
+                  <% } else if (vehicle.status === 'maintenance') { %>
+                    <span class="vehicle-status-badge status-maintenance">Maintenance</span>
+                  <% } else { %>
+                    <span class="vehicle-status-badge status-retired">Retired</span>
+                  <% } %>
+                </h4>
                 <div class="vehicle-info">
                   <span><i class="fas fa-calendar-alt"></i> <%= vehicle.year %></span>
                   <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> km</span>
