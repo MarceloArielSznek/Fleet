@@ -33,11 +33,20 @@
       <a href="/maintenance/create?vehicleId=<%= vehicle.id %>" class="btn btn-success btn-sm w-100 mb-2">
         <i class="fas fa-tools"></i> Schedule Maintenance
       </a>
-      <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="w-100" onsubmit="return confirm('¿Está seguro de eliminar este vehículo? Esta acción no se puede deshacer.');">
+      <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="w-100 mb-3" onsubmit="return confirm('¿Está seguro de eliminar este vehículo? Esta acción no se puede deshacer.');">
         <button type="submit" class="btn btn-danger btn-sm w-100">
           <i class="fas fa-trash"></i> Delete Vehicle
         </button>
       </form>
+      
+      <div class="detail-timestamps text-center">
+        <div>
+          <small>Created: <%= new Date(vehicle.createdAt).toLocaleString() %></small>
+        </div>
+        <div>
+          <small>Updated: <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -111,15 +120,6 @@
           <div class="detail-item">
             <span class="detail-label">Mileage:</span>
             <span class="detail-value"><%= vehicle.mileage.toLocaleString() %> km</span>
-          </div>
-        </div>
-        
-        <div class="detail-timestamps">
-          <div>
-            <small>Created: <%= new Date(vehicle.createdAt).toLocaleString() %></small>
-          </div>
-          <div>
-            <small>Updated: <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
           </div>
         </div>
       </div>

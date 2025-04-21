@@ -958,6 +958,8 @@ body {
   background-color: #f9f9f9;
   object-fit: cover;
   height: 300px;
+  transform: scale(0.7);
+  transform-origin: center center;
 }
 
 .vehicle-info-container {
@@ -1210,6 +1212,19 @@ body {
 
 .quick-actions .btn i {
   margin-right: 8px;
+}
+
+/* Estilos para los timestamps en el contenedor de imagen */
+.vehicle-image-container .detail-timestamps {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.vehicle-image-container .detail-timestamps div {
+  margin-bottom: 3px;
 }
 
 /* Fin de estilos para el módulo de mantenimiento */ 
