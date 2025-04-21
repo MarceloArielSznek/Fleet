@@ -7,13 +7,13 @@
     "year": "2022",
     "type": "van",
     "status": "active",
-    "lastMaintenance": "2025-04-21",
+    "lastMaintenance": "2025-04-22",
     "driver": "",
     "fuelType": "gasoline",
     "mileage": "765000",
     "image": "/images/vehicles/vehicle-1745243167426-692170686.jpg",
     "createdAt": "2025-04-21T13:46:07.434Z",
-    "updatedAt": "2025-04-21T13:56:30.745Z",
+    "updatedAt": "2025-04-21T16:04:32.278Z",
     "vin": "3VWED21C82M443315"
   },
   {
@@ -23,14 +23,14 @@
     "model": "Civic",
     "year": "1999",
     "type": "truck",
-    "status": "maintenance",
+    "status": "active",
     "lastMaintenance": "2025-04-21",
-    "driver": null,
+    "driver": "",
     "fuelType": "gasoline",
     "mileage": "190000",
     "image": "/images/vehicles/vehicle-1745245136022-127713700.jpg",
     "vin": "WDDGF54XX8F005142",
     "createdAt": "2025-04-21T14:18:56.031Z",
-    "updatedAt": "2025-04-21T14:18:56.031Z"
+    "updatedAt": "2025-04-21T15:54:59.212Z"
   }
 ]

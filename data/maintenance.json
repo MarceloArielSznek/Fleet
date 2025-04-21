@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1745250700952",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "tire_rotation",
+    "status": "completed",
+    "scheduleDate": "2025-04-21",
+    "completionDate": "2025-04-22",
+    "cost": 150,
+    "serviceProvider": "Vlavoline",
+    "serviceLocation": "6868 Sw terwilliger Blvd",
+    "mileage": 1500,
+    "notes": "",
+    "partsReplaced": "",
+    "createdAt": "2025-04-21T15:51:40.952Z",
+    "updatedAt": "2025-04-21T16:04:32.277Z"
+  }
+]
