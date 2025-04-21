@@ -19,6 +19,13 @@
 
 <div class="vehicle-detail-container">
   <div class="vehicle-image-container">
+    <div class="vehicle-name text-center mb-3">
+      <h3><%= vehicle.brand %> <%= vehicle.model %></h3>
+      <span class="vehicle-status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
+        <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %>
+      </span>
+    </div>
+
     <% if (vehicle.image) { %>
       <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
     <% } else { %>
@@ -40,11 +47,11 @@
       </form>
       
       <div class="detail-timestamps text-center">
-        <div>
-          <small>Created: <%= new Date(vehicle.createdAt).toLocaleString() %></small>
+        <div class="timestamp-row">
+          <small><strong>Created:</strong> <%= new Date(vehicle.createdAt).toLocaleString() %></small>
         </div>
-        <div>
-          <small>Updated: <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
+        <div class="timestamp-row">
+          <small><strong>Updated:</strong> <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
         </div>
       </div>
     </div>
