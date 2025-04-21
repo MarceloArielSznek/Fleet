@@ -1031,4 +1031,65 @@ body {
   .detail-actions .btn {
     width: 100%;
   }
-} 
+}
+
+/* Estilos para el módulo de mantenimiento */
+.status-primary {
+  background-color: rgba(52, 152, 219, 0.15);
+  color: var(--primary-color);
+}
+
+.notes-box {
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border-left: 4px solid var(--primary-color);
+  margin-top: 5px;
+}
+
+.maintenance-detail-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.maintenance-vehicle-container {
+  flex: 0 0 250px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.maintenance-info-container {
+  flex: 1;
+  min-width: 300px;
+}
+
+.vehicle-thumbnail {
+  max-width: 100%;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-link {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.vehicle-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .maintenance-detail-container {
+    flex-direction: column;
+  }
+  
+  .maintenance-vehicle-container,
+  .maintenance-info-container {
+    width: 100%;
+  }
+}
+
+/* Fin de estilos para el módulo de mantenimiento */ 

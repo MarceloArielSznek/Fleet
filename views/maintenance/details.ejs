@@ -1,0 +1,221 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2>Maintenance Details</h2>
+  <div class="page-actions">
+    <a href="/maintenance/<%= maintenance.id %>/edit" class="btn btn-primary">
+      <i class="fas fa-edit"></i> Edit
+    </a>
+    <a href="/maintenance" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h3>
+      <% if (maintenance.status === 'scheduled') { %>
+        <span class="status-badge status-warning">Scheduled</span>
+      <% } else if (maintenance.status === 'in_progress') { %>
+        <span class="status-badge status-primary">In Progress</span>
+      <% } else if (maintenance.status === 'completed') { %>
+        <span class="status-badge status-active">Completed</span>
+      <% } else { %>
+        <span class="status-badge status-retired">Cancelled</span>
+      <% } %>
+      <%= maintenance.maintenanceType === 'oil_change' ? 'Oil Change' :
+          maintenance.maintenanceType === 'tire_rotation' ? 'Tire Rotation' :
+          maintenance.maintenanceType === 'brake_service' ? 'Brake Service' :
+          maintenance.maintenanceType === 'engine_tuning' ? 'Engine Tuning' :
+          maintenance.maintenanceType === 'battery_replacement' ? 'Battery Replacement' :
+          maintenance.maintenanceType === 'air_filter' ? 'Air Filter Replacement' :
+          maintenance.maintenanceType === 'general_inspection' ? 'General Inspection' :
+          'Other' %>
+    </h3>
+  </div>
+  <div class="card-body">
+    <div class="maintenance-detail-container">
+      <div class="maintenance-vehicle-container">
+        <h4>Vehicle Information</h4>
+        <% if (maintenance.vehicle) { %>
+          <div class="vehicle-info">
+            <a href="/vehicles/<%= maintenance.vehicle.id %>" class="vehicle-link">
+              <strong><%= maintenance.vehicle.brand %> <%= maintenance.vehicle.model %> (<%= maintenance.vehicle.year %>)</strong>
+            </a>
+            <div class="vehicle-plate mt-2"><%= maintenance.vehicle.plate %></div>
+            <% if (maintenance.vehicle.image) { %>
+              <div class="mt-2">
+                <img src="<%= maintenance.vehicle.image %>" alt="<%= maintenance.vehicle.brand %> <%= maintenance.vehicle.model %>" class="vehicle-thumbnail">
+              </div>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="alert alert-warning">
+            Vehicle information not available or vehicle has been deleted.
+          </div>
+        <% } %>
+      </div>
+
+      <div class="maintenance-info-container">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Maintenance Type:</span>
+            <span class="detail-value">
+              <%= maintenance.maintenanceType === 'oil_change' ? 'Oil Change' :
+                  maintenance.maintenanceType === 'tire_rotation' ? 'Tire Rotation' :
+                  maintenance.maintenanceType === 'brake_service' ? 'Brake Service' :
+                  maintenance.maintenanceType === 'engine_tuning' ? 'Engine Tuning' :
+                  maintenance.maintenanceType === 'battery_replacement' ? 'Battery Replacement' :
+                  maintenance.maintenanceType === 'air_filter' ? 'Air Filter Replacement' :
+                  maintenance.maintenanceType === 'general_inspection' ? 'General Inspection' :
+                  'Other' %>
+            </span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+              <% if (maintenance.status === 'scheduled') { %>
+                <span class="status-badge status-warning">Scheduled</span>
+              <% } else if (maintenance.status === 'in_progress') { %>
+                <span class="status-badge status-primary">In Progress</span>
+              <% } else if (maintenance.status === 'completed') { %>
+                <span class="status-badge status-active">Completed</span>
+              <% } else { %>
+                <span class="status-badge status-retired">Cancelled</span>
+              <% } %>
+            </span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Schedule Date:</span>
+            <span class="detail-value"><%= new Date(maintenance.scheduleDate).toLocaleDateString() %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Completion Date:</span>
+            <span class="detail-value">
+              <%= maintenance.completionDate ? new Date(maintenance.completionDate).toLocaleDateString() : 'Not completed yet' %>
+            </span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Cost:</span>
+            <span class="detail-value"><%= maintenance.cost ? '$' + maintenance.cost.toFixed(2) : 'Not specified' %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Service Provider:</span>
+            <span class="detail-value"><%= maintenance.serviceProvider || 'Not specified' %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Service Location:</span>
+            <span class="detail-value"><%= maintenance.serviceLocation || 'Not specified' %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Mileage:</span>
+            <span class="detail-value"><%= maintenance.mileage ? maintenance.mileage.toLocaleString() + ' km' : 'Not specified' %></span>
+          </div>
+        </div>
+        
+        <% if (maintenance.notes) { %>
+        <div class="detail-section mt-3">
+          <h5>Notes</h5>
+          <div class="notes-box">
+            <p><%= maintenance.notes %></p>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (maintenance.partsReplaced) { %>
+        <div class="detail-section mt-3">
+          <h5>Parts Replaced</h5>
+          <div class="notes-box">
+            <p><%= maintenance.partsReplaced %></p>
+          </div>
+        </div>
+        <% } %>
+        
+        <div class="detail-timestamps">
+          <div>
+            <small>Created: <%= new Date(maintenance.createdAt).toLocaleString() %></small>
+          </div>
+          <div>
+            <small>Updated: <%= new Date(maintenance.updatedAt).toLocaleString() %></small>
+          </div>
+        </div>
+        
+        <div class="detail-actions mt-3">
+          <a href="/maintenance/<%= maintenance.id %>/edit" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit
+          </a>
+          
+          <form action="/maintenance/<%= maintenance.id %>/delete" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this maintenance record? This action cannot be undone.');">
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .maintenance-detail-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .maintenance-vehicle-container {
+    flex: 0 0 250px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .maintenance-info-container {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .vehicle-thumbnail {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .vehicle-link {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .vehicle-link:hover {
+    text-decoration: underline;
+  }
+  
+  .notes-box {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  @media (max-width: 768px) {
+    .maintenance-detail-container {
+      flex-direction: column;
+    }
+    
+    .maintenance-vehicle-container,
+    .maintenance-info-container {
+      width: 100%;
+    }
+  }
+</style>
+
+<%- include('../partials/footer') %> 

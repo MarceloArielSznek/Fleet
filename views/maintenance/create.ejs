@@ -21,7 +21,9 @@
           <select id="vehicleId" name="vehicleId" class="form-control" required>
             <option value="">Select a Vehicle</option>
             <% vehicles.forEach(vehicle => { %>
-              <option value="<%= vehicle.id %>"><%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %></option>
+              <option value="<%= vehicle.id %>" <%= preselectedVehicleId && preselectedVehicleId === vehicle.id ? 'selected' : '' %>>
+                <%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %>
+              </option>
             <% }) %>
           </select>
         </div>

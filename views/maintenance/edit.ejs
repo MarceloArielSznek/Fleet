@@ -1,0 +1,156 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2>Edit Maintenance Record</h2>
+  <div class="page-actions">
+    <a href="/maintenance/<%= maintenance.id %>" class="btn btn-primary">
+      <i class="fas fa-eye"></i> View Details
+    </a>
+    <a href="/maintenance" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Maintenance Information</h3>
+  </div>
+  <div class="card-body">
+    <form action="/maintenance/<%= maintenance.id %>" method="POST">
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="vehicleId" class="form-label">Vehicle</label>
+          <select id="vehicleId" name="vehicleId" class="form-control" required>
+            <option value="">Select a Vehicle</option>
+            <% vehicles.forEach(vehicle => { %>
+              <option value="<%= vehicle.id %>" <%= maintenance.vehicleId === vehicle.id ? 'selected' : '' %>>
+                <%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="maintenanceType" class="form-label">Maintenance Type</label>
+          <select id="maintenanceType" name="maintenanceType" class="form-control" required>
+            <option value="">Select Maintenance Type</option>
+            <option value="oil_change" <%= maintenance.maintenanceType === 'oil_change' ? 'selected' : '' %>>Oil Change</option>
+            <option value="tire_rotation" <%= maintenance.maintenanceType === 'tire_rotation' ? 'selected' : '' %>>Tire Rotation</option>
+            <option value="brake_service" <%= maintenance.maintenanceType === 'brake_service' ? 'selected' : '' %>>Brake Service</option>
+            <option value="engine_tuning" <%= maintenance.maintenanceType === 'engine_tuning' ? 'selected' : '' %>>Engine Tuning</option>
+            <option value="battery_replacement" <%= maintenance.maintenanceType === 'battery_replacement' ? 'selected' : '' %>>Battery Replacement</option>
+            <option value="air_filter" <%= maintenance.maintenanceType === 'air_filter' ? 'selected' : '' %>>Air Filter Replacement</option>
+            <option value="general_inspection" <%= maintenance.maintenanceType === 'general_inspection' ? 'selected' : '' %>>General Inspection</option>
+            <option value="other" <%= maintenance.maintenanceType === 'other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-control" required>
+            <option value="scheduled" <%= maintenance.status === 'scheduled' ? 'selected' : '' %>>Scheduled</option>
+            <option value="in_progress" <%= maintenance.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+            <option value="completed" <%= maintenance.status === 'completed' ? 'selected' : '' %>>Completed</option>
+            <option value="cancelled" <%= maintenance.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="scheduleDate" class="form-label">Schedule Date</label>
+          <input type="date" id="scheduleDate" name="scheduleDate" class="form-control" 
+                 value="<%= maintenance.scheduleDate ? maintenance.scheduleDate.split('T')[0] : '' %>" required>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="completionDate" class="form-label">Completion Date</label>
+          <input type="date" id="completionDate" name="completionDate" class="form-control"
+                 value="<%= maintenance.completionDate ? maintenance.completionDate.split('T')[0] : '' %>"
+                 <%= maintenance.status === 'completed' ? 'required' : '' %>>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="cost" class="form-label">Cost (USD)</label>
+          <input type="number" id="cost" name="cost" step="0.01" min="0" class="form-control"
+                 value="<%= maintenance.cost || '' %>">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="serviceProvider" class="form-label">Service Provider</label>
+          <input type="text" id="serviceProvider" name="serviceProvider" class="form-control"
+                 value="<%= maintenance.serviceProvider || '' %>">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="serviceLocation" class="form-label">Service Location</label>
+          <input type="text" id="serviceLocation" name="serviceLocation" class="form-control"
+                 value="<%= maintenance.serviceLocation || '' %>">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="mileage" class="form-label">Current Mileage</label>
+          <input type="number" id="mileage" name="mileage" min="0" class="form-control"
+                 value="<%= maintenance.mileage || '' %>">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea id="notes" name="notes" rows="4" class="form-control"><%= maintenance.notes || '' %></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="partsReplaced" class="form-label">Parts Replaced</label>
+        <textarea id="partsReplaced" name="partsReplaced" rows="2" class="form-control"><%= maintenance.partsReplaced || '' %></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-save"></i> Update Maintenance
+        </button>
+        <a href="/maintenance/<%= maintenance.id %>" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Cuando el estado cambia a "completado", hacer obligatorio el campo de fecha de finalización
+  document.getElementById('status').addEventListener('change', function() {
+    const completionDateField = document.getElementById('completionDate');
+    if (this.value === 'completed') {
+      completionDateField.setAttribute('required', 'required');
+      
+      // Si no hay fecha de finalización, establecer la fecha actual
+      if (!completionDateField.value) {
+        const today = new Date().toISOString().split('T')[0];
+        completionDateField.value = today;
+      }
+    } else {
+      completionDateField.removeAttribute('required');
+    }
+  });
+  
+  // Desactivar cambio de vehículo si el estado es "completed" o "in_progress"
+  document.addEventListener('DOMContentLoaded', function() {
+    const status = document.getElementById('status').value;
+    const vehicleIdField = document.getElementById('vehicleId');
+    
+    if (status === 'completed' || status === 'in_progress') {
+      vehicleIdField.setAttribute('disabled', 'disabled');
+      
+      // Añadir un campo oculto para mantener el valor del vehículo
+      const hiddenVehicleId = document.createElement('input');
+      hiddenVehicleId.type = 'hidden';
+      hiddenVehicleId.name = 'vehicleId';
+      hiddenVehicleId.value = vehicleIdField.value;
+      vehicleIdField.parentNode.appendChild(hiddenVehicleId);
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %> 
