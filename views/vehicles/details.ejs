@@ -30,9 +30,14 @@
       <a href="/vehicles/<%= vehicle.id %>/edit" class="btn btn-primary btn-sm w-100 mb-2">
         <i class="fas fa-edit"></i> Edit Vehicle
       </a>
-      <a href="/maintenance/create?vehicleId=<%= vehicle.id %>" class="btn btn-success btn-sm w-100">
+      <a href="/maintenance/create?vehicleId=<%= vehicle.id %>" class="btn btn-success btn-sm w-100 mb-2">
         <i class="fas fa-tools"></i> Schedule Maintenance
       </a>
+      <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="w-100" onsubmit="return confirm('¿Está seguro de eliminar este vehículo? Esta acción no se puede deshacer.');">
+        <button type="submit" class="btn btn-danger btn-sm w-100">
+          <i class="fas fa-trash"></i> Delete Vehicle
+        </button>
+      </form>
     </div>
   </div>
   
@@ -116,14 +121,6 @@
           <div>
             <small>Updated: <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
           </div>
-        </div>
-        
-        <div class="detail-actions mt-3">
-          <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="delete-form" onsubmit="return confirm('¿Está seguro de eliminar este vehículo? Esta acción no se puede deshacer.');">
-            <button type="submit" class="btn btn-danger">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </form>
         </div>
       </div>
     </div>
