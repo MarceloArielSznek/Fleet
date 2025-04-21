@@ -7,9 +7,19 @@ const path = require('path');
 exports.getHomePage = (req, res, next) => {
   try {
     const vehicles = Vehicle.getAll();
-    console.log(`[${new Date().toISOString()}] Cargando página de inicio - Vehículos disponibles: ${vehicles.length}`);
+    const maintenanceRecords = Maintenance.getAllWithVehicles();
     
-    res.render('index', { vehicles });
+    // Filtrar mantenimientos programados o en progreso
+    const activeMaintenanceRecords = maintenanceRecords.filter(
+      record => record.status === 'scheduled' || record.status === 'in_progress'
+    );
+    
+    console.log(`[${new Date().toISOString()}] Cargando página de inicio - Vehículos: ${vehicles.length}, Mantenimientos activos: ${activeMaintenanceRecords.length}`);
+    
+    res.render('index', { 
+      vehicles,
+      maintenanceRecords: activeMaintenanceRecords
+    });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al cargar página de inicio:`, error);
     next(error);
