@@ -24,6 +24,16 @@
     <% } else { %>
       <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
     <% } %>
+    
+    <!-- Acciones rápidas debajo de la imagen -->
+    <div class="quick-actions mt-3">
+      <a href="/vehicles/<%= vehicle.id %>/edit" class="btn btn-primary btn-sm w-100 mb-2">
+        <i class="fas fa-edit"></i> Edit Vehicle
+      </a>
+      <a href="/maintenance/create?vehicleId=<%= vehicle.id %>" class="btn btn-success btn-sm w-100">
+        <i class="fas fa-tools"></i> Schedule Maintenance
+      </a>
+    </div>
   </div>
   
   <div class="vehicle-info-container">
@@ -109,10 +119,6 @@
         </div>
         
         <div class="detail-actions mt-3">
-          <a href="/vehicles/<%= vehicle.id %>/edit" class="btn btn-primary">
-            <i class="fas fa-edit"></i> Edit
-          </a>
-          
           <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="delete-form" onsubmit="return confirm('¿Está seguro de eliminar este vehículo? Esta acción no se puede deshacer.');">
             <button type="submit" class="btn btn-danger">
               <i class="fas fa-trash"></i> Delete
