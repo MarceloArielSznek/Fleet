@@ -980,6 +980,38 @@ body {
   padding: 3px 10px;
   background-color: rgba(255, 255, 255, 0.2);
   color: #fff;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+/* Estilos para la información clave encima de la imagen */
+.vehicle-key-info-top {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-info-row {
+  text-align: center;
+}
+
+.vehicle-plate-top {
+  display: inline-block;
+  padding: 5px 15px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+.key-info-value-top {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* Estilos para la información clave */

@@ -24,6 +24,16 @@
       <span class="vehicle-status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
         <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %>
       </span>
+      
+      <!-- Información clave del vehículo encima de la imagen -->
+      <div class="vehicle-key-info-top">
+        <div class="key-info-row">
+          <div class="vehicle-plate-top"><%= vehicle.plate %></div>
+        </div>
+        <div class="key-info-row">
+          <div class="key-info-value-top"><%= vehicle.vin || 'VIN: Not registered' %></div>
+        </div>
+      </div>
     </div>
 
     <% if (vehicle.image) { %>
@@ -31,18 +41,6 @@
     <% } else { %>
       <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
     <% } %>
-    
-    <!-- Información clave del vehículo -->
-    <div class="vehicle-key-info">
-      <div class="key-info-item">
-        <div class="key-info-label">License Plate:</div>
-        <div class="vehicle-plate"><%= vehicle.plate %></div>
-      </div>
-      <div class="key-info-item">
-        <div class="key-info-label">VIN:</div>
-        <div class="key-info-value"><%= vehicle.vin || 'Not registered' %></div>
-      </div>
-    </div>
   </div>
   
   <div class="vehicle-info-container">
