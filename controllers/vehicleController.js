@@ -1,4 +1,5 @@
 const Vehicle = require('../models/vehicle');
+const Maintenance = require('../models/maintenance');
 const fs = require('fs');
 const path = require('path');
 
@@ -85,8 +86,11 @@ exports.getVehicleDetails = (req, res, next) => {
       });
     }
     
-    console.log(`[${new Date().toISOString()}] Consultando detalles de vehículo - ID: ${vehicle.id}`);
-    res.render('vehicles/details', { vehicle });
+    // Obtener registros de mantenimiento para este vehículo
+    const maintenanceRecords = Maintenance.findByVehicleId(vehicle.id);
+    
+    console.log(`[${new Date().toISOString()}] Consultando detalles de vehículo - ID: ${vehicle.id}, Mantenimientos: ${maintenanceRecords.length}`);
+    res.render('vehicles/details', { vehicle, maintenanceRecords });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al obtener detalles del vehículo:`, error);
     next(error);

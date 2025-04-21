@@ -1113,4 +1113,64 @@ body {
   }
 }
 
+/* Estilos para los filtros de mantenimiento en la vista de detalles */
+.maintenance-filters {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.maintenance-filters label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--dark-color);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.maintenance-filters .form-control {
+  font-size: 0.9rem;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 10px;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+/* Mejoras para la tabla de mantenimientos */
+#maintenanceTable th {
+  position: sticky;
+  top: 0;
+  background-color: var(--light-color);
+  z-index: 10;
+}
+
+#maintenanceTable tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+#noRecordsMessage {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid var(--warning-color);
+}
+
 /* Fin de estilos para el módulo de mantenimiento */ 
