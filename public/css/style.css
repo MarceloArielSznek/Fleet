@@ -514,6 +514,14 @@ body {
   color: var(--danger-color);
 }
 
+/* Pero mantener los colores especiales para los badges en el header */
+.vehicle-name .vehicle-status-badge.status-active,
+.vehicle-name .vehicle-status-badge.status-maintenance,
+.vehicle-name .vehicle-status-badge.status-retired {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
 /* Responsive Table */
 .table-responsive {
   overflow-x: auto;
@@ -947,7 +955,7 @@ body {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding-bottom: 15px;
+  padding-bottom: 0;
   height: 100%;
   max-height: 650px;
 }
@@ -955,7 +963,7 @@ body {
 .vehicle-detail-image {
   width: 100%;
   border-radius: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0;
   background-color: #f9f9f9;
   object-fit: cover;
   height: 250px;
@@ -963,7 +971,7 @@ body {
 
 .vehicle-name {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 0;
   border-radius: 8px 8px 0 0;
   background-color: var(--secondary-color);
   color: #fff;
