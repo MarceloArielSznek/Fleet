@@ -1,0 +1,127 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2>Schedule Maintenance</h2>
+  <div class="page-actions">
+    <a href="/maintenance" class="btn btn-primary">
+      <i class="fas fa-arrow-left"></i> Back to Maintenance List
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Maintenance Information</h3>
+  </div>
+  <div class="card-body">
+    <form action="/maintenance" method="POST">
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="vehicleId" class="form-label">Vehicle</label>
+          <select id="vehicleId" name="vehicleId" class="form-control" required>
+            <option value="">Select a Vehicle</option>
+            <% vehicles.forEach(vehicle => { %>
+              <option value="<%= vehicle.id %>"><%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %></option>
+            <% }) %>
+          </select>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="maintenanceType" class="form-label">Maintenance Type</label>
+          <select id="maintenanceType" name="maintenanceType" class="form-control" required>
+            <option value="">Select Maintenance Type</option>
+            <option value="oil_change">Oil Change</option>
+            <option value="tire_rotation">Tire Rotation</option>
+            <option value="brake_service">Brake Service</option>
+            <option value="engine_tuning">Engine Tuning</option>
+            <option value="battery_replacement">Battery Replacement</option>
+            <option value="air_filter">Air Filter Replacement</option>
+            <option value="general_inspection">General Inspection</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-control" required>
+            <option value="scheduled">Scheduled</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="scheduleDate" class="form-label">Schedule Date</label>
+          <input type="date" id="scheduleDate" name="scheduleDate" class="form-control" required>
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="completionDate" class="form-label">Completion Date</label>
+          <input type="date" id="completionDate" name="completionDate" class="form-control">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="cost" class="form-label">Cost (USD)</label>
+          <input type="number" id="cost" name="cost" step="0.01" min="0" class="form-control">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="serviceProvider" class="form-label">Service Provider</label>
+          <input type="text" id="serviceProvider" name="serviceProvider" class="form-control">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="serviceLocation" class="form-label">Service Location</label>
+          <input type="text" id="serviceLocation" name="serviceLocation" class="form-control">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="mileage" class="form-label">Current Mileage</label>
+          <input type="number" id="mileage" name="mileage" min="0" class="form-control">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea id="notes" name="notes" rows="4" class="form-control"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="partsReplaced" class="form-label">Parts Replaced</label>
+        <textarea id="partsReplaced" name="partsReplaced" rows="2" class="form-control"></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-save"></i> Schedule Maintenance
+        </button>
+        <a href="/maintenance" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Cuando el estado cambia a "completado", hacer obligatorio el campo de fecha de finalización
+  document.getElementById('status').addEventListener('change', function() {
+    const completionDateField = document.getElementById('completionDate');
+    if (this.value === 'completed') {
+      completionDateField.setAttribute('required', 'required');
+    } else {
+      completionDateField.removeAttribute('required');
+    }
+  });
+  
+  // Establecer la fecha actual como fecha predeterminada para la programación
+  document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('scheduleDate').value = today;
+  });
+</script>
+
+<%- include('../partials/footer') %> 

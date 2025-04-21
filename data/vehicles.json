@@ -17,19 +17,20 @@
     "vin": "3VWED21C82M443315"
   },
   {
-    "id": "1745243274861",
+    "id": "1745245136031",
     "plate": "DEF456",
     "brand": "Ford",
-    "model": "Transit",
-    "year": "2019",
-    "type": "van",
+    "model": "Civic",
+    "year": "1999",
+    "type": "truck",
     "status": "maintenance",
-    "lastMaintenance": "2025-04-17",
-    "driver": "",
+    "lastMaintenance": "2025-04-21",
+    "driver": null,
     "fuelType": "gasoline",
-    "mileage": "998874",
-    "image": "/images/vehicles/vehicle-1745243298323-627128768.jpg",
-    "createdAt": "2025-04-21T13:47:54.861Z",
-    "updatedAt": "2025-04-21T13:48:18.332Z"
+    "mileage": "190000",
+    "image": "/images/vehicles/vehicle-1745245136022-127713700.jpg",
+    "vin": "WDDGF54XX8F005142",
+    "createdAt": "2025-04-21T14:18:56.031Z",
+    "updatedAt": "2025-04-21T14:18:56.031Z"
   }
 ]
