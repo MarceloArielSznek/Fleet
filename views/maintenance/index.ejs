@@ -24,8 +24,67 @@
       <h3>Maintenance History</h3>
     </div>
     <div class="card-body">
+      <!-- Filtros -->
+      <div class="maintenance-filters mb-3">
+        <div class="form-row">
+          <div class="form-col">
+            <label for="vehicleFilter">Vehicle:</label>
+            <select id="vehicleFilter" class="form-control">
+              <option value="">All Vehicles</option>
+              <% 
+                // Crear una lista única de vehículos
+                const vehicles = [];
+                const vehicleIds = new Set();
+                
+                maintenanceRecords.forEach(record => {
+                  if (record.vehicle && !vehicleIds.has(record.vehicle.id)) {
+                    vehicleIds.add(record.vehicle.id);
+                    vehicles.push(record.vehicle);
+                  }
+                });
+                
+                vehicles.forEach(vehicle => { 
+              %>
+                <option value="<%= vehicle.id %>"><%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-col">
+            <label for="typeFilter">Service Type:</label>
+            <select id="typeFilter" class="form-control">
+              <option value="">All Types</option>
+              <option value="oil_change">Oil Change</option>
+              <option value="tire_rotation">Tire Rotation</option>
+              <option value="brake_service">Brake Service</option>
+              <option value="engine_tuning">Engine Tuning</option>
+              <option value="battery_replacement">Battery Replacement</option>
+              <option value="air_filter">Air Filter Replacement</option>
+              <option value="general_inspection">General Inspection</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" class="form-control">
+              <option value="">All Statuses</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label for="dateFilter">Date Range:</label>
+            <div class="d-flex gap-2">
+              <input type="date" id="dateFilterFrom" class="form-control" placeholder="From">
+              <input type="date" id="dateFilterTo" class="form-control" placeholder="To">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-responsive">
-        <table class="table">
+        <table class="table" id="maintenanceTable">
           <thead>
             <tr>
               <th>Vehicle</th>
@@ -40,12 +99,15 @@
           <tbody>
             <% if (maintenanceRecords && maintenanceRecords.length > 0) { %>
               <% maintenanceRecords.forEach(record => { %>
-                <tr>
+                <tr data-vehicle="<%= record.vehicle ? record.vehicle.id : '' %>" data-type="<%= record.maintenanceType %>" data-status="<%= record.status %>" data-date="<%= record.scheduleDate %>">
                   <td>
                     <% if (record.vehicle) { %>
-                      <%= record.vehicle.plate %> - <%= record.vehicle.brand %> <%= record.vehicle.model %>
+                      <a href="/vehicles/<%= record.vehicle.id %>" class="vehicle-link">
+                        <%= record.vehicle.brand %> <%= record.vehicle.model %>
+                        <div class="vehicle-plate"><%= record.vehicle.plate %></div>
+                      </a>
                     <% } else { %>
-                      Unknown Vehicle
+                      <span class="text-muted">Unknown Vehicle</span>
                     <% } %>
                   </td>
                   <td>
@@ -97,8 +159,131 @@
           </tbody>
         </table>
       </div>
+      
+      <div id="noRecordsMessage" style="display: none;" class="text-center mt-3">
+        <p>No maintenance records match the selected filters.</p>
+      </div>
     </div>
   </div>
 <% } %>
+
+<script>
+  // Filtrado de la tabla de mantenimientos
+  document.addEventListener('DOMContentLoaded', function() {
+    const vehicleFilter = document.getElementById('vehicleFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilterFrom = document.getElementById('dateFilterFrom');
+    const dateFilterTo = document.getElementById('dateFilterTo');
+    const table = document.getElementById('maintenanceTable');
+    const noRecordsMessage = document.getElementById('noRecordsMessage');
+    
+    if (!table || !vehicleFilter || !typeFilter || !statusFilter) return;
+    
+    const rows = table.querySelectorAll('tbody tr');
+    
+    function applyFilters() {
+      const selectedVehicle = vehicleFilter.value;
+      const selectedType = typeFilter.value;
+      const selectedStatus = statusFilter.value;
+      const fromDate = dateFilterFrom.value ? new Date(dateFilterFrom.value) : null;
+      const toDate = dateFilterTo.value ? new Date(dateFilterTo.value) : null;
+      
+      let visibleRows = 0;
+      
+      rows.forEach(row => {
+        const rowVehicle = row.getAttribute('data-vehicle');
+        const rowType = row.getAttribute('data-type');
+        const rowStatus = row.getAttribute('data-status');
+        const rowDate = new Date(row.getAttribute('data-date'));
+        
+        // Aplicar filtros
+        let showRow = true;
+        
+        if (selectedVehicle && rowVehicle !== selectedVehicle) {
+          showRow = false;
+        }
+        
+        if (selectedType && rowType !== selectedType) {
+          showRow = false;
+        }
+        
+        if (selectedStatus && rowStatus !== selectedStatus) {
+          showRow = false;
+        }
+        
+        if (fromDate && rowDate < fromDate) {
+          showRow = false;
+        }
+        
+        if (toDate) {
+          // Ajustar la fecha "hasta" para incluir todo el día
+          const adjustedToDate = new Date(toDate);
+          adjustedToDate.setHours(23, 59, 59, 999);
+          if (rowDate > adjustedToDate) {
+            showRow = false;
+          }
+        }
+        
+        row.style.display = showRow ? '' : 'none';
+        
+        if (showRow) {
+          visibleRows++;
+        }
+      });
+      
+      // Mostrar mensaje si no hay resultados
+      if (visibleRows === 0 && rows.length > 0) {
+        noRecordsMessage.style.display = 'block';
+      } else {
+        noRecordsMessage.style.display = 'none';
+      }
+    }
+    
+    // Agregar eventos de cambio a los filtros
+    vehicleFilter.addEventListener('change', applyFilters);
+    typeFilter.addEventListener('change', applyFilters);
+    statusFilter.addEventListener('change', applyFilters);
+    dateFilterFrom.addEventListener('change', applyFilters);
+    dateFilterTo.addEventListener('change', applyFilters);
+  });
+</script>
+
+<style>
+  .maintenance-filters {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .gap-2 {
+    gap: 10px;
+    display: flex;
+  }
+  
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+  }
+  
+  .form-col {
+    flex: 1;
+    padding: 0 10px;
+    min-width: 200px;
+    margin-bottom: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+    }
+    
+    .form-col {
+      width: 100%;
+    }
+  }
+</style>
 
 <%- include('../partials/footer') %> 
