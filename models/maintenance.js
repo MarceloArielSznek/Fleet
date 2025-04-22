@@ -18,6 +18,7 @@ class Maintenance {
     this.mileage = data.mileage ? parseInt(data.mileage) : null;
     this.notes = data.notes || null;
     this.partsReplaced = data.partsReplaced || null;
+    this.documents = data.documents || [];
     this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = data.updatedAt || new Date().toISOString();
   }
@@ -246,6 +247,75 @@ class Maintenance {
       return deletedRecord;
     } catch (error) {
       console.error('Error al eliminar registro de mantenimiento:', error);
+      return null;
+    }
+  }
+
+  // Añadir un documento al registro de mantenimiento
+  static addDocument(maintenanceId, document) {
+    try {
+      const maintenance = this.findById(maintenanceId);
+      if (!maintenance) return null;
+      
+      // Si no tiene array de documentos, crearlo
+      if (!maintenance.documents) {
+        maintenance.documents = [];
+      }
+      
+      // Crear un ID único para el documento
+      const docId = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const newDocument = {
+        id: docId,
+        name: document.name,
+        type: document.type,
+        url: document.url,
+        description: document.description || '',
+        uploadDate: new Date().toISOString()
+      };
+      
+      maintenance.documents.push(newDocument);
+      maintenance.updatedAt = new Date().toISOString();
+      
+      const records = this.getAll();
+      const index = records.findIndex(r => r.id === maintenanceId);
+      records[index] = maintenance;
+      
+      this.saveAll(records);
+      return newDocument;
+    } catch (error) {
+      console.error('Error al añadir documento:', error);
+      return null;
+    }
+  }
+  
+  // Eliminar un documento de un registro de mantenimiento
+  static removeDocument(maintenanceId, documentId) {
+    try {
+      const maintenance = this.findById(maintenanceId);
+      if (!maintenance || !maintenance.documents) return null;
+      
+      const documentIndex = maintenance.documents.findIndex(doc => doc.id === documentId);
+      if (documentIndex === -1) return null;
+      
+      const document = maintenance.documents[documentIndex];
+      maintenance.documents.splice(documentIndex, 1);
+      maintenance.updatedAt = new Date().toISOString();
+      
+      const records = this.getAll();
+      const index = records.findIndex(r => r.id === maintenanceId);
+      records[index] = maintenance;
+      
+      this.saveAll(records);
+      
+      // Eliminar el archivo del sistema de archivos
+      const filePath = path.join(__dirname, '..', 'public', document.url.replace(/^\//, ''));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      
+      return document;
+    } catch (error) {
+      console.error('Error al eliminar documento:', error);
       return null;
     }
   }

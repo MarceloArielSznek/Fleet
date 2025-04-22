@@ -53,14 +53,11 @@
             <label for="typeFilter">Service Type:</label>
             <select id="typeFilter" class="form-control">
               <option value="">All Types</option>
-              <option value="oil_change">Oil Change</option>
-              <option value="tire_rotation">Tire Rotation</option>
-              <option value="brake_service">Brake Service</option>
-              <option value="engine_tuning">Engine Tuning</option>
-              <option value="battery_replacement">Battery Replacement</option>
-              <option value="air_filter">Air Filter Replacement</option>
-              <option value="general_inspection">General Inspection</option>
-              <option value="other">Other</option>
+              <% if (serviceTypes && serviceTypes.length > 0) { %>
+                <% serviceTypes.forEach(service => { %>
+                  <option value="<%= service.id %>"><%= service.name %></option>
+                <% }); %>
+              <% } %>
             </select>
           </div>
           <div class="form-col">
@@ -73,6 +70,8 @@
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
+        </div>
+        <div class="form-row mt-2">
           <div class="form-col">
             <label for="dateFilter">Date Range:</label>
             <div class="d-flex gap-2">
@@ -104,6 +103,9 @@
                     <% if (record.vehicle) { %>
                       <a href="/vehicles/<%= record.vehicle.id %>" class="vehicle-link">
                         <%= record.vehicle.brand %> <%= record.vehicle.model %>
+                        <% if (record.vehicle.name) { %>
+                          <div class="vehicle-name-small"><%= record.vehicle.name %></div>
+                        <% } %>
                         <div class="vehicle-plate"><%= record.vehicle.plate %></div>
                       </a>
                     <% } else { %>
@@ -111,14 +113,16 @@
                     <% } %>
                   </td>
                   <td>
-                    <%= record.maintenanceType === 'oil_change' ? 'Oil Change' :
-                        record.maintenanceType === 'tire_rotation' ? 'Tire Rotation' :
-                        record.maintenanceType === 'brake_service' ? 'Brake Service' :
-                        record.maintenanceType === 'engine_tuning' ? 'Engine Tuning' :
-                        record.maintenanceType === 'battery_replacement' ? 'Battery Replacement' :
-                        record.maintenanceType === 'air_filter' ? 'Air Filter Replacement' :
-                        record.maintenanceType === 'general_inspection' ? 'General Inspection' :
-                        'Other' %>
+                    <% 
+                    let serviceName = 'Other';
+                    if (serviceTypes && serviceTypes.length > 0) {
+                      const serviceType = serviceTypes.find(s => s.id === record.maintenanceType);
+                      if (serviceType) {
+                        serviceName = serviceType.name;
+                      }
+                    }
+                    %>
+                    <%= serviceName %>
                   </td>
                   <td><%= new Date(record.scheduleDate).toLocaleDateString() %></td>
                   <td>

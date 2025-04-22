@@ -35,14 +35,21 @@
           <label for="maintenanceType" class="form-label">Maintenance Type</label>
           <select id="maintenanceType" name="maintenanceType" class="form-control" required>
             <option value="">Select Maintenance Type</option>
-            <option value="oil_change" <%= maintenance.maintenanceType === 'oil_change' ? 'selected' : '' %>>Oil Change</option>
-            <option value="tire_rotation" <%= maintenance.maintenanceType === 'tire_rotation' ? 'selected' : '' %>>Tire Rotation</option>
-            <option value="brake_service" <%= maintenance.maintenanceType === 'brake_service' ? 'selected' : '' %>>Brake Service</option>
-            <option value="engine_tuning" <%= maintenance.maintenanceType === 'engine_tuning' ? 'selected' : '' %>>Engine Tuning</option>
-            <option value="battery_replacement" <%= maintenance.maintenanceType === 'battery_replacement' ? 'selected' : '' %>>Battery Replacement</option>
-            <option value="air_filter" <%= maintenance.maintenanceType === 'air_filter' ? 'selected' : '' %>>Air Filter Replacement</option>
-            <option value="general_inspection" <%= maintenance.maintenanceType === 'general_inspection' ? 'selected' : '' %>>General Inspection</option>
-            <option value="other" <%= maintenance.maintenanceType === 'other' ? 'selected' : '' %>>Other</option>
+            <% if (serviceTypes && serviceTypes.length > 0) { %>
+              <% serviceTypes.forEach(serviceType => { %>
+                <option value="<%= serviceType.id %>" <%= maintenance.maintenanceType === serviceType.id ? 'selected' : '' %>><%= serviceType.name %></option>
+              <% }); %>
+            <% } else { %>
+              <!-- Opciones de respaldo en caso de que no haya servicios disponibles -->
+              <option value="oil_change" <%= maintenance.maintenanceType === 'oil_change' ? 'selected' : '' %>>Oil Change</option>
+              <option value="tire_rotation" <%= maintenance.maintenanceType === 'tire_rotation' ? 'selected' : '' %>>Tire Rotation</option>
+              <option value="brake_service" <%= maintenance.maintenanceType === 'brake_service' ? 'selected' : '' %>>Brake Service</option>
+              <option value="engine_tuning" <%= maintenance.maintenanceType === 'engine_tuning' ? 'selected' : '' %>>Engine Tuning</option>
+              <option value="battery_replacement" <%= maintenance.maintenanceType === 'battery_replacement' ? 'selected' : '' %>>Battery Replacement</option>
+              <option value="air_filter" <%= maintenance.maintenanceType === 'air_filter' ? 'selected' : '' %>>Air Filter Replacement</option>
+              <option value="general_inspection" <%= maintenance.maintenanceType === 'general_inspection' ? 'selected' : '' %>>General Inspection</option>
+              <option value="other" <%= maintenance.maintenanceType === 'other' ? 'selected' : '' %>>Other</option>
+            <% } %>
           </select>
         </div>
         
@@ -106,6 +113,48 @@
       <div class="form-group">
         <label for="partsReplaced" class="form-label">Parts Replaced</label>
         <textarea id="partsReplaced" name="partsReplaced" rows="2" class="form-control"><%= maintenance.partsReplaced || '' %></textarea>
+      </div>
+      
+      <!-- Sección de documentos -->
+      <div class="form-group">
+        <label class="form-label">Documents & Receipts</label>
+        <% if (maintenance.documents && maintenance.documents.length > 0) { %>
+          <div class="documents-compact">
+            <% maintenance.documents.forEach(doc => { %>
+              <div class="document-item-small">
+                <div class="document-icon-small">
+                  <% if (doc.type === 'pdf') { %>
+                    <i class="fas fa-file-pdf"></i>
+                  <% } else if (doc.type === 'image') { %>
+                    <i class="fas fa-file-image"></i>
+                  <% } else { %>
+                    <i class="fas fa-file"></i>
+                  <% } %>
+                </div>
+                <div class="document-info-small">
+                  <span class="document-name-small"><%= doc.name %></span>
+                </div>
+              </div>
+            <% }) %>
+            <div class="documents-actions">
+              <a href="/maintenance/<%= maintenance.id %>" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-eye"></i> View Documents
+              </a>
+              <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-sm btn-outline-success">
+                <i class="fas fa-upload"></i> Upload More
+              </a>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> You can upload receipts, warranties, and other documents after saving this maintenance record.
+          </div>
+          <div class="mb-3">
+            <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-upload"></i> Upload Documents
+            </a>
+          </div>
+        <% } %>
       </div>
       
       <div class="form-actions">

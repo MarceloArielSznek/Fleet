@@ -1,0 +1,135 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2><%= typeof service !== 'undefined' ? 'Edit' : 'Create New' %> Service Type</h2>
+  <div class="page-actions">
+    <a href="/maintenance/admin" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Admin
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Service Type Details</h3>
+    <% if (typeof isStandardService !== 'undefined' && isStandardService) { %>
+      <div class="badge standard-badge">Standard Service</div>
+    <% } %>
+  </div>
+  <div class="card-body">
+    <% if (typeof isStandardService !== 'undefined' && isStandardService) { %>
+      <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> You are editing a standard service type. Some fields are read-only to maintain system compatibility.
+      </div>
+    <% } %>
+    
+    <form action="<%= typeof service !== 'undefined' ? '/maintenance/admin/services/' + service.id + '/edit' : '/maintenance/admin/services/create' %>" method="POST">
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="serviceName" class="form-label">Service Name</label>
+            <input type="text" id="serviceName" name="name" class="form-control" required 
+                   placeholder="e.g. Transmission Fluid Change"
+                   value="<%= typeof service !== 'undefined' ? service.name : '' %>">
+            <small class="text-muted">A descriptive name for this maintenance service type</small>
+          </div>
+        </div>
+        
+        <div class="form-col">
+          <div class="form-group">
+            <label for="serviceId" class="form-label">Service ID</label>
+            <input type="text" id="serviceId" name="id" class="form-control" required 
+                   placeholder="e.g. transmission_fluid" pattern="[a-z0-9_]+" 
+                   title="Use only lowercase letters, numbers and underscores"
+                   value="<%= typeof service !== 'undefined' ? service.id : '' %>"
+                   <%= typeof service !== 'undefined' ? 'readonly' : '' %>>
+            <small class="text-muted">A unique identifier (only lowercase letters, numbers and underscores)</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="serviceDescription" class="form-label">Description</label>
+        <textarea id="serviceDescription" name="description" class="form-control" rows="3"
+                  placeholder="Describe the service, when it's typically needed, etc."><%= typeof service !== 'undefined' ? service.description : '' %></textarea>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label class="form-label">Service Category</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="category" id="categoryRoutine" value="routine" 
+                     <%= typeof service === 'undefined' || (typeof service !== 'undefined' && service.category === 'routine') ? 'checked' : '' %>>
+              <label class="form-check-label" for="categoryRoutine">Routine Maintenance</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="category" id="categoryMajor" value="major"
+                     <%= typeof service !== 'undefined' && service.category === 'major' ? 'checked' : '' %>>
+              <label class="form-check-label" for="categoryMajor">Major Service</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="category" id="categoryEmergency" value="emergency"
+                     <%= typeof service !== 'undefined' && service.category === 'emergency' ? 'checked' : '' %>>
+              <label class="form-check-label" for="categoryEmergency">Emergency/Repair</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-col">
+          <div class="form-group">
+            <label class="form-label">Applicable Vehicle Types</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="typeCar" name="vehicleTypes" value="car" 
+                     <%= typeof service === 'undefined' || (typeof service !== 'undefined' && service.vehicleTypes && service.vehicleTypes.includes('car')) ? 'checked' : '' %>>
+              <label class="form-check-label" for="typeCar">Car</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="typeTruck" name="vehicleTypes" value="truck"
+                     <%= typeof service !== 'undefined' && service.vehicleTypes && service.vehicleTypes.includes('truck') ? 'checked' : '' %>>
+              <label class="form-check-label" for="typeTruck">Truck</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="typeVan" name="vehicleTypes" value="van"
+                     <%= typeof service !== 'undefined' && service.vehicleTypes && service.vehicleTypes.includes('van') ? 'checked' : '' %>>
+              <label class="form-check-label" for="typeVan">Van</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="typeMotorcycle" name="vehicleTypes" value="motorcycle"
+                     <%= typeof service !== 'undefined' && service.vehicleTypes && service.vehicleTypes.includes('motorcycle') ? 'checked' : '' %>>
+              <label class="form-check-label" for="typeMotorcycle">Motorcycle</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Maintenance intervals will be defined by specific rules that can be created in the administration panel.
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><%= typeof service !== 'undefined' ? 'Update' : 'Create' %> Service Type</button>
+        <a href="/maintenance/admin" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .standard-badge {
+    background-color: #2c3e50;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+</style>
+
+<%- include('../partials/footer') %> 

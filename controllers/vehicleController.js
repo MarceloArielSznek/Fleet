@@ -3,6 +3,23 @@ const Maintenance = require('../models/maintenance');
 const fs = require('fs');
 const path = require('path');
 
+// Ruta al archivo de tipos de servicio
+const serviceTypesDataPath = path.join(__dirname, '../data/serviceTypes.json');
+
+// Función auxiliar para leer datos JSON
+const readJsonFile = (filePath, defaultValue = []) => {
+  try {
+    if (!fs.existsSync(filePath)) {
+      return defaultValue;
+    }
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error al leer archivo ${filePath}:`, error);
+    return defaultValue;
+  }
+};
+
 // Página de inicio con carrusel
 exports.getHomePage = (req, res, next) => {
   try {
@@ -14,11 +31,15 @@ exports.getHomePage = (req, res, next) => {
       record => record.status === 'scheduled' || record.status === 'in_progress'
     );
     
+    // Obtener los tipos de servicio del archivo JSON
+    const serviceTypes = readJsonFile(serviceTypesDataPath, []);
+    
     console.log(`[${new Date().toISOString()}] Cargando página de inicio - Vehículos: ${vehicles.length}, Mantenimientos activos: ${activeMaintenanceRecords.length}`);
     
     res.render('index', { 
       vehicles,
-      maintenanceRecords: activeMaintenanceRecords
+      maintenanceRecords: activeMaintenanceRecords,
+      serviceTypes
     });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al cargar página de inicio:`, error);
@@ -30,8 +51,28 @@ exports.getHomePage = (req, res, next) => {
 exports.getAllVehicles = (req, res, next) => {
   try {
     const vehicles = Vehicle.getAll();
+    
+    // Extraer datos para filtros
+    const vehicleTypes = [...new Set(vehicles.map(v => v.type).filter(Boolean))].sort();
+    const brands = [...new Set(vehicles.map(v => v.brand).filter(Boolean))].sort();
+    const statuses = [...new Set(vehicles.map(v => v.status).filter(Boolean))].sort();
+    const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort((a, b) => b - a); // Ordenar años de forma descendente
+    
+    // Obtener los tipos de servicio del archivo JSON
+    const serviceTypes = readJsonFile(serviceTypesDataPath, []);
+    
     console.log(`[${new Date().toISOString()}] Consultando lista de vehículos - Total: ${vehicles.length}`);
-    res.render('vehicles/index', { vehicles });
+    
+    res.render('vehicles/index', { 
+      vehicles,
+      filters: {
+        vehicleTypes,
+        brands,
+        statuses,
+        years
+      },
+      serviceTypes
+    });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al obtener vehículos:`, error);
     next(error);
@@ -99,8 +140,11 @@ exports.getVehicleDetails = (req, res, next) => {
     // Obtener registros de mantenimiento para este vehículo
     const maintenanceRecords = Maintenance.findByVehicleId(vehicle.id);
     
+    // Obtener los tipos de servicio del archivo JSON
+    const serviceTypes = readJsonFile(serviceTypesDataPath, []);
+    
     console.log(`[${new Date().toISOString()}] Consultando detalles de vehículo - ID: ${vehicle.id}, Mantenimientos: ${maintenanceRecords.length}`);
-    res.render('vehicles/details', { vehicle, maintenanceRecords });
+    res.render('vehicles/details', { vehicle, maintenanceRecords, serviceTypes });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al obtener detalles del vehículo:`, error);
     next(error);

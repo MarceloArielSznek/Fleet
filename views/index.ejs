@@ -26,7 +26,11 @@
               </div>
               <div class="vehicle-card-content">
                 <h4>
-                  <%= vehicle.brand %> <%= vehicle.model %>
+                  <% if (vehicle.name) { %>
+                    <%= vehicle.name %>
+                  <% } else { %>
+                    <%= vehicle.brand %> <%= vehicle.model %>
+                  <% } %>
                   <% if (vehicle.status === 'active') { %>
                     <span class="vehicle-status-badge status-active">Active</span>
                   <% } else if (vehicle.status === 'maintenance') { %>
@@ -35,6 +39,7 @@
                     <span class="vehicle-status-badge status-retired">Retired</span>
                   <% } %>
                 </h4>
+                <div class="vehicle-name-display"><%= vehicle.brand %> <%= vehicle.model %></div>
                 <div class="vehicle-info">
                   <span><i class="fas fa-calendar-alt"></i> <%= vehicle.year %></span>
                   <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> km</span>
@@ -147,6 +152,9 @@
                     <% if (record.vehicle) { %>
                       <a href="/vehicles/<%= record.vehicle.id %>" class="vehicle-link">
                         <%= record.vehicle.brand %> <%= record.vehicle.model %>
+                        <% if (record.vehicle.name) { %>
+                          <div class="vehicle-name-small"><%= record.vehicle.name %></div>
+                        <% } %>
                         <div class="vehicle-plate"><%= record.vehicle.plate %></div>
                       </a>
                     <% } else { %>
@@ -154,14 +162,16 @@
                     <% } %>
                   </td>
                   <td>
-                    <%= record.maintenanceType === 'oil_change' ? 'Oil Change' :
-                        record.maintenanceType === 'tire_rotation' ? 'Tire Rotation' :
-                        record.maintenanceType === 'brake_service' ? 'Brake Service' :
-                        record.maintenanceType === 'engine_tuning' ? 'Engine Tuning' :
-                        record.maintenanceType === 'battery_replacement' ? 'Battery Replacement' :
-                        record.maintenanceType === 'air_filter' ? 'Air Filter Replacement' :
-                        record.maintenanceType === 'general_inspection' ? 'General Inspection' :
-                        'Other' %>
+                    <% 
+                    let serviceName = 'Other';
+                    if (serviceTypes && serviceTypes.length > 0) {
+                      const serviceType = serviceTypes.find(s => s.id === record.maintenanceType);
+                      if (serviceType) {
+                        serviceName = serviceType.name;
+                      }
+                    }
+                    %>
+                    <%= serviceName %>
                   </td>
                   <td><%= new Date(record.scheduleDate).toLocaleDateString() %></td>
                   <td>

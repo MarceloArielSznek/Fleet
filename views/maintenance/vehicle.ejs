@@ -98,14 +98,16 @@
             <% maintenanceRecords.forEach(record => { %>
               <tr>
                 <td>
-                  <%= record.maintenanceType === 'oil_change' ? 'Oil Change' :
-                      record.maintenanceType === 'tire_rotation' ? 'Tire Rotation' :
-                      record.maintenanceType === 'brake_service' ? 'Brake Service' :
-                      record.maintenanceType === 'engine_tuning' ? 'Engine Tuning' :
-                      record.maintenanceType === 'battery_replacement' ? 'Battery Replacement' :
-                      record.maintenanceType === 'air_filter' ? 'Air Filter Replacement' :
-                      record.maintenanceType === 'general_inspection' ? 'General Inspection' :
-                      'Other' %>
+                  <% 
+                  let serviceName = 'Other';
+                  if (serviceTypes && serviceTypes.length > 0) {
+                    const serviceType = serviceTypes.find(s => s.id === record.maintenanceType);
+                    if (serviceType) {
+                      serviceName = serviceType.name;
+                    }
+                  }
+                  %>
+                  <%= serviceName %>
                 </td>
                 <td><%= new Date(record.scheduleDate).toLocaleDateString() %></td>
                 <td>

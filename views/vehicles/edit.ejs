@@ -25,18 +25,22 @@
         </div>
         
         <div class="form-group form-col">
-          <label for="vin" class="form-label">VIN</label>
-          <input type="text" id="vin" name="vin" class="form-control" value="<%= vehicle.vin || '' %>" placeholder="Vehicle Identification Number">
-          <small class="form-text text-muted">Unique manufacturer serial number</small>
+          <label for="name" class="form-label">Vehicle Name</label>
+          <input type="text" id="name" name="name" class="form-control" value="<%= vehicle.name || '' %>" placeholder="Give your vehicle a name">
         </div>
         
         <div class="form-group form-col">
-          <label for="brand" class="form-label">Brand</label>
-          <input type="text" id="brand" name="brand" class="form-control" value="<%= vehicle.brand %>" required>
+          <label for="vin" class="form-label">VIN</label>
+          <input type="text" id="vin" name="vin" class="form-control" value="<%= vehicle.vin || '' %>" placeholder="Vehicle Identification Number">
         </div>
       </div>
       
       <div class="form-row">
+        <div class="form-group form-col">
+          <label for="brand" class="form-label">Brand</label>
+          <input type="text" id="brand" name="brand" class="form-control" value="<%= vehicle.brand %>" required>
+        </div>
+        
         <div class="form-group form-col">
           <label for="model" class="form-label">Model</label>
           <input type="text" id="model" name="model" class="form-control" value="<%= vehicle.model %>" required>
@@ -46,7 +50,9 @@
           <label for="year" class="form-label">Year</label>
           <input type="number" id="year" name="year" class="form-control" min="1900" max="<%= new Date().getFullYear() + 1 %>" value="<%= vehicle.year %>" required>
         </div>
-        
+      </div>
+      
+      <div class="form-row">
         <div class="form-group form-col">
           <label for="type" class="form-label">Type</label>
           <select id="type" name="type" class="form-control">
@@ -57,9 +63,7 @@
             <option value="other" <%= vehicle.type === 'other' ? 'selected' : '' %>>Other</option>
           </select>
         </div>
-      </div>
-      
-      <div class="form-row">
+        
         <div class="form-group form-col">
           <label for="status" class="form-label">Status</label>
           <select id="status" name="status" class="form-control">
@@ -73,14 +77,14 @@
           <label for="lastMaintenance" class="form-label">Last Maintenance</label>
           <input type="date" id="lastMaintenance" name="lastMaintenance" class="form-control" value="<%= vehicle.lastMaintenance ? vehicle.lastMaintenance.split('T')[0] : '' %>">
         </div>
-        
+      </div>
+      
+      <div class="form-row">
         <div class="form-group form-col">
           <label for="driver" class="form-label">Driver</label>
           <input type="text" id="driver" name="driver" class="form-control" value="<%= vehicle.driver || '' %>">
         </div>
-      </div>
-      
-      <div class="form-row">
+        
         <div class="form-group form-col">
           <label for="fuelType" class="form-label">Fuel Type</label>
           <select id="fuelType" name="fuelType" class="form-control" required>

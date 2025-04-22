@@ -32,14 +32,20 @@
           <label for="maintenanceType" class="form-label">Maintenance Type</label>
           <select id="maintenanceType" name="maintenanceType" class="form-control" required>
             <option value="">Select Maintenance Type</option>
-            <option value="oil_change">Oil Change</option>
-            <option value="tire_rotation">Tire Rotation</option>
-            <option value="brake_service">Brake Service</option>
-            <option value="engine_tuning">Engine Tuning</option>
-            <option value="battery_replacement">Battery Replacement</option>
-            <option value="air_filter">Air Filter Replacement</option>
-            <option value="general_inspection">General Inspection</option>
-            <option value="other">Other</option>
+            <% if (serviceTypes && serviceTypes.length > 0) { %>
+              <% serviceTypes.forEach(serviceType => { %>
+                <option value="<%= serviceType.id %>"><%= serviceType.name %></option>
+              <% }); %>
+            <% } else { %>
+              <!-- Opciones de respaldo en caso de que no haya servicios disponibles -->
+              <option value="oil_change">Oil Change</option>
+              <option value="tire_rotation">Tire Rotation</option>
+              <option value="brake_service">Brake Service</option>
+              <option value="engine_tuning">Engine Tuning</option>
+              <option value="battery_replacement">Battery Replacement</option>
+              <option value="air_filter">Air Filter Replacement</option>
+              <option value="general_inspection">General Inspection</option>
+            <% } %>
           </select>
         </div>
         
@@ -96,6 +102,14 @@
       <div class="form-group">
         <label for="partsReplaced" class="form-label">Parts Replaced</label>
         <textarea id="partsReplaced" name="partsReplaced" rows="2" class="form-control"></textarea>
+      </div>
+      
+      <!-- Sección de documentos -->
+      <div class="form-group">
+        <label class="form-label">Documents</label>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> You will be able to upload receipts, warranties, and other documents after creating the maintenance record.
+        </div>
       </div>
       
       <div class="form-actions">

@@ -1,0 +1,389 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2>Create New Maintenance Rule</h2>
+  <div class="page-actions">
+    <a href="/maintenance/admin" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Admin
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Rule Details</h3>
+  </div>
+  <div class="card-body">
+    <form action="<%= typeof rule !== 'undefined' ? '/maintenance/admin/rules/' + rule.id + '/edit' : '/maintenance/admin/rules/create' %>" method="POST">
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="ruleName" class="form-label">Rule Name</label>
+            <input type="text" id="ruleName" name="name" class="form-control" required 
+                   placeholder="e.g. Standard Oil Change"
+                   value="<%= typeof rule !== 'undefined' ? rule.name : '' %>">
+            <small class="text-muted">A descriptive name for this maintenance rule</small>
+          </div>
+        </div>
+        
+        <div class="form-col">
+          <div class="form-group">
+            <label for="serviceType" class="form-label">Service Type</label>
+            <select id="serviceType" name="serviceType" class="form-control" required>
+              <option value="" disabled <%= typeof rule === 'undefined' ? 'selected' : '' %>>Select a service type</option>
+              <optgroup label="Standard Services">
+                <option value="oil_change" <%= typeof rule !== 'undefined' && rule.serviceType === 'oil_change' ? 'selected' : '' %>>Oil Change</option>
+                <option value="tire_rotation" <%= typeof rule !== 'undefined' && rule.serviceType === 'tire_rotation' ? 'selected' : '' %>>Tire Rotation</option>
+                <option value="brake_service" <%= typeof rule !== 'undefined' && rule.serviceType === 'brake_service' ? 'selected' : '' %>>Brake Service</option>
+                <option value="engine_tuning" <%= typeof rule !== 'undefined' && rule.serviceType === 'engine_tuning' ? 'selected' : '' %>>Engine Tuning</option>
+                <option value="battery_replacement" <%= typeof rule !== 'undefined' && rule.serviceType === 'battery_replacement' ? 'selected' : '' %>>Battery Replacement</option>
+                <option value="air_filter" <%= typeof rule !== 'undefined' && rule.serviceType === 'air_filter' ? 'selected' : '' %>>Air Filter Replacement</option>
+                <option value="general_inspection" <%= typeof rule !== 'undefined' && rule.serviceType === 'general_inspection' ? 'selected' : '' %>>General Inspection</option>
+              </optgroup>
+              <% if (customServices && customServices.length > 0) { %>
+                <optgroup label="Custom Services">
+                  <% customServices.forEach(service => { %>
+                    <option value="<%= service.id %>" <%= typeof rule !== 'undefined' && rule.serviceType === service.id ? 'selected' : '' %>><%= service.name %></option>
+                  <% }) %>
+                </optgroup>
+              <% } %>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="conditionType" class="form-label">Condition Type</label>
+            <select id="conditionType" name="conditionType" class="form-control" required>
+              <option value="mileage" <%= typeof rule !== 'undefined' && rule.conditionType === 'mileage' ? 'selected' : '' %>>Mileage-based</option>
+              <option value="time" <%= typeof rule !== 'undefined' && rule.conditionType === 'time' ? 'selected' : '' %>>Time-based</option>
+              <option value="combined" <%= typeof rule !== 'undefined' && rule.conditionType === 'combined' ? 'selected' : '' %>>Combined (Mileage or Time)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-col condition-value mileage-condition">
+          <div class="form-group">
+            <label for="mileageValue" class="form-label">Mileage Interval (km)</label>
+            <input type="number" id="mileageValue" name="mileageValue" class="form-control" 
+                   placeholder="e.g. 10000" min="1" required
+                   value="<%= typeof rule !== 'undefined' && rule.conditionType === 'mileage' ? rule.conditionValue : (typeof rule !== 'undefined' && rule.conditionType === 'combined' ? rule.conditionValue.mileage : '') %>">
+            <small class="text-muted">Trigger maintenance every X kilometers</small>
+          </div>
+        </div>
+        
+        <div class="form-col condition-value time-condition" style="display: none;">
+          <div class="form-group">
+            <label for="timeValue" class="form-label">Time Interval (days)</label>
+            <input type="number" id="timeValue" name="timeValue" class="form-control" 
+                   placeholder="e.g. 180" min="1"
+                   value="<%= typeof rule !== 'undefined' && rule.conditionType === 'time' ? rule.conditionValue : (typeof rule !== 'undefined' && rule.conditionType === 'combined' ? rule.conditionValue.time : '') %>">
+            <small class="text-muted">Trigger maintenance every X days</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="priority" class="form-label">Priority</label>
+            <select id="priority" name="priority" class="form-control">
+              <option value="low" <%= typeof rule !== 'undefined' && rule.priority === 'low' ? 'selected' : '' %>>Low</option>
+              <option value="medium" <%= typeof rule === 'undefined' || (typeof rule !== 'undefined' && rule.priority === 'medium') ? 'selected' : '' %>>Medium</option>
+              <option value="high" <%= typeof rule !== 'undefined' && rule.priority === 'high' ? 'selected' : '' %>>High</option>
+            </select>
+            <small class="text-muted">Priority affects notifications and scheduling suggestions</small>
+          </div>
+        </div>
+        
+        <div class="form-col">
+          <div class="form-group">
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="2"
+                      placeholder="Optional description of this rule"><%= typeof rule !== 'undefined' ? rule.description : '' %></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Apply to Specific Vehicles</label>
+        <div class="vehicles-checkbox-container">
+          <div class="checkbox-option all-vehicles-option">
+            <input type="checkbox" id="allVehicles" name="allVehicles" class="form-check-input" 
+                   <% if (typeof rule === 'undefined' || !rule || !rule.vehicleIds || rule.vehicleIds.length === 0) { %>checked<% } %>>
+            <label for="allVehicles" class="form-check-label">All Vehicles</label>
+          </div>
+          
+          <div class="specific-vehicles" <% if (typeof rule === 'undefined' || !rule || !rule.vehicleIds || rule.vehicleIds.length === 0) { %>style="display: none;"<% } %>>
+            <% if (vehicles && vehicles.length > 0) { %>
+              <div class="vehicles-checkbox-grid">
+                <% vehicles.forEach(vehicle => { %>
+                  <div class="checkbox-option vehicle-option">
+                    <input type="checkbox" id="vehicle_<%= vehicle.id %>" name="vehicleIds" 
+                           value="<%= vehicle.id %>" class="form-check-input vehicle-checkbox"
+                           <% if (typeof rule !== 'undefined' && rule && rule.vehicleIds && rule.vehicleIds.includes(vehicle.id)) { %>checked<% } %>>
+                    <label for="vehicle_<%= vehicle.id %>" class="form-check-label">
+                      <div class="vehicle-info-compact">
+                        <div class="vehicle-header">
+                          <% if (vehicle.name) { %>
+                            <span class="vehicle-nickname"><%= vehicle.name %></span>
+                          <% } %>
+                          <span class="vehicle-plate-tag"><%= vehicle.plate %></span>
+                        </div>
+                        <div class="vehicle-name-full">
+                          <span class="vehicle-model"><%= vehicle.brand %> <%= vehicle.model %></span>
+                          <span class="year"><%= vehicle.year %></span>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="text-muted">No vehicles available in the fleet.</p>
+            <% } %>
+          </div>
+        </div>
+        <small class="text-muted">Select specific vehicles or choose "All Vehicles" to apply to the entire fleet</small>
+      </div>
+      
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="isActive" name="isActive" 
+              <%= typeof rule === 'undefined' || (typeof rule !== 'undefined' && rule.isActive) ? 'checked' : '' %>>
+        <label class="form-check-label" for="isActive">Activate rule immediately</label>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><%= typeof rule !== 'undefined' ? 'Update Rule' : 'Create Rule' %></button>
+        <a href="/maintenance/admin" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const conditionTypeSelect = document.getElementById('conditionType');
+    const mileageCondition = document.querySelector('.mileage-condition');
+    const timeCondition = document.querySelector('.time-condition');
+    const mileageValueInput = document.getElementById('mileageValue');
+    const timeValueInput = document.getElementById('timeValue');
+    
+    // Control de mostrar/ocultar campos según tipo de condición
+    function updateConditionFields() {
+      const selectedValue = conditionTypeSelect.value;
+      
+      if (selectedValue === 'mileage') {
+        mileageCondition.style.display = '';
+        timeCondition.style.display = 'none';
+        mileageValueInput.required = true;
+        timeValueInput.required = false;
+      } else if (selectedValue === 'time') {
+        mileageCondition.style.display = 'none';
+        timeCondition.style.display = '';
+        mileageValueInput.required = false;
+        timeValueInput.required = true;
+      } else if (selectedValue === 'combined') {
+        mileageCondition.style.display = '';
+        timeCondition.style.display = '';
+        mileageValueInput.required = true;
+        timeValueInput.required = true;
+      }
+    }
+    
+    // Toggle para "Todos los vehículos" vs "Vehículos específicos"
+    const allVehiclesCheckbox = document.getElementById('allVehicles');
+    const specificVehiclesContainer = document.querySelector('.specific-vehicles');
+    const vehicleCheckboxes = document.querySelectorAll('.vehicle-checkbox');
+    
+    if (allVehiclesCheckbox && specificVehiclesContainer) {
+      allVehiclesCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+          specificVehiclesContainer.style.display = 'none';
+          vehicleCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+          });
+        } else {
+          specificVehiclesContainer.style.display = '';
+        }
+      });
+      
+      // Si se marca algún vehículo específico, desmarcar "Todos los vehículos"
+      vehicleCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          if (this.checked) {
+            allVehiclesCheckbox.checked = false;
+          }
+          
+          // Si no hay ningún vehículo específico seleccionado, marcar "Todos los vehículos"
+          const anyVehicleSelected = Array.from(vehicleCheckboxes).some(cb => cb.checked);
+          if (!anyVehicleSelected) {
+            allVehiclesCheckbox.checked = true;
+            specificVehiclesContainer.style.display = 'none';
+          }
+        });
+      });
+    }
+    
+    conditionTypeSelect.addEventListener('change', updateConditionFields);
+    updateConditionFields(); // Initialize on page load
+  });
+</script>
+
+<style>
+  .vehicles-checkbox-container {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+  }
+  
+  .vehicles-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+  }
+  
+  .checkbox-option {
+    padding: 0;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+  
+  .checkbox-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .checkbox-option input {
+    margin: 16px 0 0 16px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .checkbox-option label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    flex: 1;
+    padding: 12px 16px 12px 10px;
+  }
+  
+  .all-vehicles-option {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    margin-bottom: 8px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.1);
+  }
+  
+  .all-vehicles-option:hover {
+    background-color: #bbdefb;
+  }
+  
+  .all-vehicles-option input {
+    margin-top: 12px;
+  }
+  
+  .all-vehicles-option label {
+    padding: 10px 16px 10px 10px;
+  }
+  
+  .vehicle-option {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+    border-left: 4px solid #90caf9;
+  }
+  
+  .vehicle-option:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    border-left-color: #2196F3;
+  }
+  
+  .vehicle-option input:checked + label {
+    background-color: rgba(33, 150, 243, 0.05);
+  }
+  
+  .vehicle-option input:checked + label .vehicle-info-compact {
+    opacity: 1;
+  }
+  
+  .vehicle-info-compact {
+    display: flex;
+    flex-direction: column;
+    opacity: 0.9;
+  }
+  
+  .vehicle-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .vehicle-nickname {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #2c3e50;
+    margin-right: auto;
+  }
+  
+  .vehicle-plate-tag {
+    font-weight: 600;
+    background-color: #34495e;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .vehicle-name-full {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .vehicle-model {
+    font-weight: 500;
+    background: #f8f9fa;
+    padding: 3px 10px;
+    border-radius: 4px;
+    color: #444;
+    border: 1px solid #e9ecef;
+  }
+  
+  .vehicle-name-full .year {
+    font-size: 0.8rem;
+    color: #777;
+    font-weight: 500;
+    background: #f5f5f5;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+  
+  .specific-vehicles {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #dee2e6;
+  }
+</style>
+
+<%- include('../partials/footer') %> 

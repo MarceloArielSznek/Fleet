@@ -3,7 +3,15 @@
 <div class="page-header">
   <h2>Vehicles</h2>
   <div class="page-actions">
-    <a href="/vehicles/create" class="btn btn-success">
+    <div class="view-toggle">
+      <button class="btn-toggle active" data-view="table" title="Table View">
+        <i class="fas fa-list"></i>
+      </button>
+      <button class="btn-toggle" data-view="cards" title="Card View">
+        <i class="fas fa-th-large"></i>
+      </button>
+    </div>
+    <a href="/vehicles/create" class="btn btn-success ml-2">
       <i class="fas fa-plus"></i> New Vehicle
     </a>
   </div>
@@ -19,7 +27,8 @@
     </div>
   </div>
 <% } else { %>
-  <div class="card">
+  <!-- Table View -->
+  <div class="card view-section" id="table-view">
     <div class="card-header">
       <h3>Vehicle List</h3>
     </div>
@@ -28,6 +37,7 @@
         <table class="table">
           <thead>
             <tr>
+              <th>Name</th>
               <th>License Plate</th>
               <th>Brand</th>
               <th>Model</th>
@@ -39,6 +49,7 @@
           <tbody>
             <% vehicles.forEach(vehicle => { %>
               <tr>
+                <td><%= vehicle.name || '-' %></td>
                 <td><%= vehicle.plate %></td>
                 <td><%= vehicle.brand %></td>
                 <td><%= vehicle.model %></td>
@@ -73,6 +84,229 @@
       </div>
     </div>
   </div>
+
+  <!-- Cards View -->
+  <div class="view-section" id="cards-view" style="display: none;">
+    <div class="vehicles-grid">
+      <% vehicles.forEach(vehicle => { %>
+        <div class="vehicle-card">
+          <div class="vehicle-card-image">
+            <% if (vehicle.image) { %>
+              <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>">
+            <% } else { %>
+              <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>">
+            <% } %>
+            <div class="vehicle-card-badge">
+              <% if (vehicle.status === 'active') { %>
+                <span class="status-badge status-active">Active</span>
+              <% } else if (vehicle.status === 'maintenance') { %>
+                <span class="status-badge status-maintenance">Maintenance</span>
+              <% } else { %>
+                <span class="status-badge status-retired">Retired</span>
+              <% } %>
+            </div>
+          </div>
+          <div class="vehicle-card-content">
+            <h4>
+              <% if (vehicle.name) { %>
+                <%= vehicle.name %>
+              <% } else { %>
+                <%= vehicle.brand %> <%= vehicle.model %>
+              <% } %>
+            </h4>
+            <div class="vehicle-name-display"><%= vehicle.brand %> <%= vehicle.model %></div>
+            <div class="vehicle-info">
+              <span><i class="fas fa-calendar-alt"></i> <%= vehicle.year %></span>
+              <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> km</span>
+            </div>
+            <div class="vehicle-plate"><%= vehicle.plate %></div>
+            <div class="vehicle-card-actions">
+              <a href="/vehicles/<%= vehicle.id %>" class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> View
+              </a>
+              <a href="/vehicles/<%= vehicle.id %>/edit" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-danger" 
+                        onclick="return confirm('Are you sure you want to delete this vehicle?')">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
 <% } %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get references to toggle buttons and view sections
+    const toggleButtons = document.querySelectorAll('.btn-toggle');
+    const tableView = document.getElementById('table-view');
+    const cardsView = document.getElementById('cards-view');
+    
+    // Save view preference to localStorage
+    function saveViewPreference(view) {
+      localStorage.setItem('vehiclesViewPreference', view);
+    }
+    
+    // Load view preference from localStorage
+    function loadViewPreference() {
+      return localStorage.getItem('vehiclesViewPreference') || 'table';
+    }
+    
+    // Set the view based on preference
+    function setView(view) {
+      if (view === 'cards') {
+        tableView.style.display = 'none';
+        cardsView.style.display = 'block';
+        toggleButtons.forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.dataset.view === 'cards') {
+            btn.classList.add('active');
+          }
+        });
+      } else {
+        tableView.style.display = 'block';
+        cardsView.style.display = 'none';
+        toggleButtons.forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.dataset.view === 'table') {
+            btn.classList.add('active');
+          }
+        });
+      }
+      saveViewPreference(view);
+    }
+    
+    // Initialize view from saved preference
+    setView(loadViewPreference());
+    
+    // Add click event listeners to toggle buttons
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const view = this.dataset.view;
+        setView(view);
+      });
+    });
+  });
+</script>
+
+<style>
+  .page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .view-toggle {
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #eee;
+  }
+  
+  .btn-toggle {
+    background-color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+  }
+  
+  .btn-toggle:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .btn-toggle.active {
+    background-color: var(--primary-color);
+    color: #fff;
+  }
+  
+  .vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .vehicle-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .vehicle-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .vehicle-card-image {
+    height: 180px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .vehicle-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+  }
+  
+  .vehicle-card:hover .vehicle-card-image img {
+    transform: scale(1.05);
+  }
+  
+  .vehicle-card-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .vehicle-card-content {
+    padding: 15px;
+  }
+  
+  .vehicle-card-content h4 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--dark-color);
+  }
+  
+  .vehicle-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .vehicle-card-actions .btn {
+    flex: 1;
+    min-width: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+  
+  @media (max-width: 768px) {
+    .vehicles-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .ml-2 {
+    margin-left: 10px;
+  }
+</style>
 
 <%- include('../partials/footer') %> 

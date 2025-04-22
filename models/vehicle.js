@@ -6,6 +6,7 @@ const dataPath = path.join(__dirname, '../data/vehicles.json');
 class Vehicle {
   constructor(data) {
     this.id = data.id || String(Date.now());
+    this.name = data.name || null;
     this.plate = data.plate;
     this.brand = data.brand;
     this.model = data.model;

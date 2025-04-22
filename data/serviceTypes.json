@@ -1,0 +1,86 @@
+[
+  {
+    "id": "oil_change",
+    "name": "Oil Change",
+    "code": "oil_change",
+    "description": "Engine oil and filter replacement",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "tire_rotation",
+    "name": "Tire Rotation",
+    "code": "tire_rotation",
+    "description": "Rotation of tires to ensure even wear",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "brake_service",
+    "name": "Brake Service",
+    "code": "brake_service",
+    "description": "Inspection and replacement of brake pads and components",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "engine_tuning",
+    "name": "Engine Tuning",
+    "code": "engine_tuning",
+    "description": "Adjustment and optimization of engine performance",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "battery_replacement",
+    "name": "Battery Replacement",
+    "code": "battery_replacement",
+    "description": "Replacement of vehicle battery",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "air_filter",
+    "name": "Air Filter Replacement",
+    "code": "air_filter",
+    "description": "Replacement of engine air filter",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "general_inspection",
+    "name": "General Inspection",
+    "code": "general_inspection",
+    "description": "Complete vehicle inspection",
+    "isSystemDefault": true,
+    "active": true,
+    "createdAt": "2025-04-22T01:36:06.777Z",
+    "updatedAt": "2025-04-22T01:36:06.777Z"
+  },
+  {
+    "id": "tr_fluid",
+    "name": "Transmission fluid change",
+    "code": "tr_fluid",
+    "description": "trast",
+    "category": "routine",
+    "vehicleTypes": [
+      "van"
+    ],
+    "isSystemDefault": false,
+    "active": true,
+    "createdAt": "2025-04-22T03:10:22.205Z",
+    "updatedAt": "2025-04-22T03:10:22.205Z"
+  }
+]

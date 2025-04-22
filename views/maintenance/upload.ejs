@@ -1,0 +1,175 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h2>Upload Document</h2>
+  <div class="page-actions">
+    <a href="/maintenance/<%= maintenance.id %>" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Maintenance Details
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>
+      <% if (maintenance.maintenanceType) { %>
+        <% 
+        let serviceName = 'Other';
+        if (serviceTypes && serviceTypes.length > 0) {
+          const serviceType = serviceTypes.find(s => s.id === maintenance.maintenanceType);
+          if (serviceType) {
+            serviceName = serviceType.name;
+          }
+        }
+        %>
+        <%= serviceName %>
+      <% } %>
+      - Document Upload
+    </h3>
+  </div>
+  <div class="card-body">
+    <form action="/maintenance/<%= maintenance.id %>/upload" method="POST" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="form-group form-col">
+          <label for="documentName" class="form-label">Document Name</label>
+          <input type="text" id="documentName" name="documentName" class="form-control" required 
+                 placeholder="e.g. Warranty Certificate, Service Receipt">
+        </div>
+        
+        <div class="form-group form-col">
+          <label for="documentType" class="form-label">Document Type</label>
+          <select id="documentType" name="documentType" class="form-control" required>
+            <option value="">Select Document Type</option>
+            <option value="receipt">Receipt</option>
+            <option value="warranty">Warranty</option>
+            <option value="invoice">Invoice</option>
+            <option value="certificate">Certificate</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="documentFile" class="form-label">File</label>
+        <div class="file-upload-container">
+          <div class="file-preview" id="filePreview">
+            <div class="file-placeholder">
+              <i class="fas fa-file-upload fa-3x"></i>
+              <p>No file selected</p>
+            </div>
+          </div>
+          <input type="file" id="documentFile" name="documentFile" class="form-control-file" required 
+                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+          <small class="form-text">Allowed file types: PDF, JPG, JPEG, PNG, DOC, DOCX. Maximum file size: 5MB.</small>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="description" class="form-label">Description (Optional)</label>
+        <textarea id="description" name="description" rows="2" class="form-control" 
+                  placeholder="Add a brief description of this document"></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-upload"></i> Upload Document
+        </button>
+        <a href="/maintenance/<%= maintenance.id %>" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Mostrar vista previa del archivo
+  document.getElementById('documentFile').addEventListener('change', function(e) {
+    const filePreview = document.getElementById('filePreview');
+    const file = e.target.files[0];
+    
+    if (!file) {
+      filePreview.innerHTML = `
+        <div class="file-placeholder">
+          <i class="fas fa-file-upload fa-3x"></i>
+          <p>No file selected</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const fileType = file.type;
+    let icon = 'fa-file';
+    
+    if (fileType.includes('pdf')) {
+      icon = 'fa-file-pdf';
+    } else if (fileType.includes('image')) {
+      icon = 'fa-file-image';
+    } else if (fileType.includes('word')) {
+      icon = 'fa-file-word';
+    }
+    
+    // Auto-fill document name if empty
+    const documentNameField = document.getElementById('documentName');
+    if (!documentNameField.value) {
+      // Remove extension from filename
+      let fileName = file.name.split('.').slice(0, -1).join('.');
+      documentNameField.value = fileName;
+    }
+    
+    filePreview.innerHTML = `
+      <div class="file-selected">
+        <i class="fas ${icon} fa-3x"></i>
+        <p>${file.name}</p>
+        <small>${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+      </div>
+    `;
+  });
+</script>
+
+<style>
+  .file-upload-container {
+    margin-bottom: 1rem;
+  }
+  
+  .file-preview {
+    width: 100%;
+    height: 150px;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    overflow: hidden;
+    text-align: center;
+  }
+  
+  .file-placeholder, .file-selected {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    padding: 20px;
+  }
+  
+  .file-placeholder i, .file-selected i {
+    margin-bottom: 10px;
+    color: #aaa;
+  }
+  
+  .file-selected i {
+    color: var(--primary-color);
+  }
+  
+  .file-selected p {
+    margin: 5px 0;
+    font-weight: 500;
+  }
+  
+  .file-selected small {
+    color: #777;
+  }
+</style>
+
+<%- include('../partials/footer') %> 
