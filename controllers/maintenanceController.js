@@ -37,35 +37,48 @@ exports.getAllMaintenanceRecords = (req, res, next) => {
 };
 
 // Mostrar el formulario para crear un nuevo registro de mantenimiento
-exports.getCreateForm = async (req, res, next) => {
+exports.getCreateForm = (req, res, next) => {
   try {
-    // Obtener todos los vehículos para el selector
-    const vehicles = Vehicle.getAll().filter(v => v.status !== 'retired');
+    // Obtener todos los vehículos y ordenarlos por nombre
+    let vehicles = Vehicle.getAll();
+    // Ordenar vehículos por nombre (o si no tiene nombre, por marca y modelo)
+    vehicles.sort((a, b) => {
+      const nameA = a.name || `${a.brand} ${a.model}`;
+      const nameB = b.name || `${b.brand} ${b.model}`;
+      return nameA.localeCompare(nameB);
+    });
     
-    // Obtener los tipos de servicio del archivo JSON
+    // Crear un objeto con los kilometrajes de cada vehículo
+    const vehicleMileages = {};
+    vehicles.forEach(vehicle => {
+      vehicleMileages[vehicle.id] = vehicle.mileage;
+    });
+    
     const serviceTypes = readJsonFile(serviceTypesDataPath, []);
-    // Filtrar solo los servicios activos
-    const activeServiceTypes = serviceTypes.filter(service => service.active !== false);
-    
-    console.log(`[${new Date().toISOString()}] Cargando formulario de mantenimiento - Vehículos disponibles: ${vehicles.length}, Servicios disponibles: ${activeServiceTypes.length}`);
-    
-    // Verificar si se ha proporcionado un vehicleId en la URL
     const preselectedVehicleId = req.query.vehicleId;
-    let preselectedVehicle = null;
+    const preselectedServiceType = req.query.serviceType;
+    const preselectedMileage = req.query.mileage;
     
-    if (preselectedVehicleId) {
-      preselectedVehicle = Vehicle.findById(preselectedVehicleId);
-      console.log(`[${new Date().toISOString()}] Vehículo preseleccionado: ${preselectedVehicle ? preselectedVehicle.brand + ' ' + preselectedVehicle.model : 'No encontrado'}`);
-    }
-    
+    console.log('Preselected Vehicle ID:', preselectedVehicleId || 'No especificado');
+    console.log('Preselected Service Type:', preselectedServiceType || 'No especificado');
+    console.log('Preselected Mileage:', preselectedMileage || 'No especificado');
+    console.log('Vehicle Mileages:', vehicleMileages);
+
     res.render('maintenance/create', { 
+      title: 'Schedule Maintenance',
       vehicles,
-      serviceTypes: activeServiceTypes,
-      preselectedVehicleId: preselectedVehicle ? preselectedVehicle.id : null
+      vehicleMileages,
+      serviceTypes,
+      preselectedVehicleId,
+      preselectedServiceType,
+      preselectedMileage
     });
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] ERROR al cargar formulario de mantenimiento:`, error);
-    next(error);
+    console.error('Error al mostrar el formulario de creación de mantenimiento:', error);
+    res.status(500).render('error', { 
+      message: 'Error al cargar el formulario de mantenimiento', 
+      error 
+    });
   }
 };
 
@@ -98,7 +111,8 @@ exports.createMaintenanceRecord = (req, res, next) => {
       Fecha: new Date().toLocaleString()
     });
     
-    res.redirect('/maintenance');
+    // Redireccionar a la página de detalles del mantenimiento recién creado
+    res.redirect(`/maintenance/${newMaintenance.id}`);
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al crear registro de mantenimiento:`, error);
     next(error);

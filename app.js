@@ -5,6 +5,7 @@ const path = require('path');
 // Importar rutas
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const maintenanceRoutes = require('./routes/maintenanceRoutes');
+const weeklyUpdateRoutes = require('./routes/weeklyUpdateRoutes');
 
 // Importar controladores
 const vehicleController = require('./controllers/vehicleController');
@@ -25,6 +26,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Rutas
 app.use('/vehicles', vehicleRoutes);
 app.use('/maintenance', maintenanceRoutes);
+app.use('/weekly-update', weeklyUpdateRoutes);
 
 // Ruta principal - Página de inicio
 app.get('/', vehicleController.getHomePage);

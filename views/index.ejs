@@ -18,6 +18,11 @@
           <% vehicles.forEach(vehicle => { %>
             <div class="vehicle-card">
               <div class="vehicle-card-image">
+                <div class="status-badge-container">
+                  <span class="status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
+                    <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'Maintenance' : 'Retired' %>
+                  </span>
+                </div>
                 <% if (vehicle.image) { %>
                   <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>">
                 <% } else { %>
@@ -25,27 +30,37 @@
                 <% } %>
               </div>
               <div class="vehicle-card-content">
-                <h4>
-                  <% if (vehicle.name) { %>
-                    <%= vehicle.name %>
-                  <% } else { %>
-                    <%= vehicle.brand %> <%= vehicle.model %>
-                  <% } %>
-                  <% if (vehicle.status === 'active') { %>
-                    <span class="vehicle-status-badge status-active">Active</span>
-                  <% } else if (vehicle.status === 'maintenance') { %>
-                    <span class="vehicle-status-badge status-maintenance">Maintenance</span>
-                  <% } else { %>
-                    <span class="vehicle-status-badge status-retired">Retired</span>
-                  <% } %>
-                </h4>
-                <div class="vehicle-name-display"><%= vehicle.brand %> <%= vehicle.model %></div>
-                <div class="vehicle-info">
-                  <span><i class="fas fa-calendar-alt"></i> <%= vehicle.year %></span>
-                  <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> km</span>
+                <div class="vehicle-header">
+                  <div class="vehicle-title-area">
+                    <h4 class="vehicle-title">
+                      <% if (vehicle.name) { %>
+                        <%= vehicle.name %>
+                      <% } else { %>
+                        <%= vehicle.brand %> <%= vehicle.model %>
+                      <% } %>
+                    </h4>
+                    <div class="vehicle-subtitle"><%= vehicle.brand %> <%= vehicle.model %></div>
+                  </div>
+                  <div class="vehicle-plate-tag"><%= vehicle.plate %></div>
                 </div>
-                <div class="vehicle-plate"><%= vehicle.plate %></div>
-                <a href="/vehicles/<%= vehicle.id %>" class="btn btn-sm btn-primary">View details</a>
+                
+                <div class="vehicle-data">
+                  <div class="vehicle-year">
+                    <i class="fas fa-calendar-alt"></i> <%= vehicle.year %>
+                  </div>
+                  <div class="vehicle-mileage">
+                    <i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> miles
+                  </div>
+                </div>
+              </div>
+              
+              <div class="vehicle-card-actions">
+                <a href="/vehicles/<%= vehicle.id %>" class="vehicle-action-btn view-btn">
+                  <i class="fas fa-eye"></i> View
+                </a>
+                <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="vehicle-action-btn schedule-btn">
+                  <i class="fas fa-tools"></i> Schedule
+                </a>
               </div>
             </div>
           <% }) %>
