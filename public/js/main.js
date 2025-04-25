@@ -23,6 +23,7 @@ function initSidebar() {
   const menuToggle = document.getElementById('menu-toggle');
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.querySelector('.main-content');
+  const userMenuTrigger = document.querySelector('.user-menu-trigger');
   
   // Verificar si los elementos existen
   if (!menuToggle || !sidebar || !mainContent) {
@@ -67,6 +68,50 @@ function initSidebar() {
       deactivateSidebar();
     } else {
       activateSidebar();
+    }
+  });
+  
+  // Menú de usuario
+  if (userMenuTrigger) {
+    const userMenu = document.createElement('div');
+    userMenu.className = 'user-dropdown';
+    userMenu.innerHTML = `
+      <ul class="user-dropdown-menu">
+        <li><a href="#"><i class="fas fa-user-circle"></i> Perfil</a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+        <li class="divider"></li>
+        <li><a href="#" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+      </ul>
+    `;
+    document.querySelector('.user-menu').appendChild(userMenu);
+    
+    // Toggle del menú de usuario
+    userMenuTrigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      userMenu.classList.toggle('active');
+    });
+    
+    // Cerrar menú de usuario al hacer clic en otro lugar
+    document.addEventListener('click', function(e) {
+      if (!userMenuTrigger.contains(e.target) && !userMenu.contains(e.target)) {
+        userMenu.classList.remove('active');
+      }
+    });
+  }
+  
+  // Marcar enlace activo en la barra lateral
+  const currentPath = window.location.pathname;
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  
+  sidebarLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    
+    // Comprobar si el enlace es para la página actual
+    if (href === currentPath || 
+        (href !== '/' && currentPath.startsWith(href)) ||
+        (href === '/' && currentPath === '/')) {
+      link.classList.add('active');
     }
   });
   

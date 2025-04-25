@@ -1,20 +1,17 @@
 [
   {
-    "id": "1745290196394",
+    "id": "1745551819424",
     "name": "Standard oil change",
     "serviceType": "oil_change",
     "conditionType": "mileage",
     "conditionValue": 3000,
     "priority": "high",
     "vehicleIds": [
-      "1745243167434",
-      "1745245136034",
-      "1745245136035",
       "1745265391674"
     ],
-    "description": "Each one of the following vans must get an oil change every 3K miles.",
+    "description": "",
     "isActive": true,
-    "createdAt": "2025-04-22T02:49:56.394Z",
-    "updatedAt": "2025-04-23T02:54:00.245Z"
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T05:57:15.232Z"
   }
 ]

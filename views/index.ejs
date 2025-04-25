@@ -1,10 +1,7 @@
 <%- include('partials/header') %>
 
-
-
-
 <!-- Vehicle Carousel -->
-<div class="carousel-container">
+<div class="carousel-container container">
   
   <h3 class="section-title">Featured Vehicles</h3>
   
@@ -15,7 +12,14 @@
     <div class="carousel" id="vehicles-carousel">
       <div class="carousel-inner" id="carousel-inner">
         <% if (vehicles && vehicles.length > 0) { %>
-          <% vehicles.forEach(vehicle => { %>
+          <% 
+            // Ordenar vehículos: primero activos, luego en mantenimiento, finalmente retirados
+            const sortedVehicles = [...vehicles].sort((a, b) => {
+              const statusOrder = { 'active': 1, 'maintenance': 2, 'retired': 3 };
+              return statusOrder[a.status] - statusOrder[b.status];
+            });
+          %>
+          <% sortedVehicles.forEach(vehicle => { %>
             <div class="vehicle-card">
               <div class="vehicle-card-image">
                 <div class="status-badge-container">
@@ -65,12 +69,16 @@
             </div>
           <% }) %>
         <% } else { %>
-          <div class="vehicle-card empty-card">
-            <div class="vehicle-card-content text-center">
-              <i class="fas fa-car fa-3x mb-2"></i>
-              <h4>No vehicles</h4>
-              <p>There are no vehicles registered in the system yet.</p>
-              <a href="/vehicles/create" class="btn btn-sm btn-primary">Add vehicle</a>
+          <div class="vehicle-card empty-vehicle-card">
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="fas fa-car"></i>
+              </div>
+              <h4 class="empty-state-title">No Vehicles</h4>
+              <p class="empty-state-message">There are no vehicles registered in the system yet.</p>
+              <a href="/vehicles/create" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Add Vehicle
+              </a>
             </div>
           </div>
         <% } %>
@@ -86,53 +94,55 @@
   </div>
 </div>
 
-<div class="dashboard">
-  <div class="row">
-    <!-- Vehicles card -->
-    <div class="dashboard-card">
-      <div class="dashboard-card-icon">
-        <i class="fas fa-car"></i>
+<div class="dashboard container">
+  <div class="dashboard-stats">
+    <div class="row">
+      <!-- Vehicles card -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+          <i class="fas fa-car"></i>
+        </div>
+        <div class="dashboard-card-content">
+          <h3>Vehicles</h3>
+          <p class="dashboard-card-number"><%= vehicles ? vehicles.length : 0 %></p>
+          <a href="/vehicles" class="dashboard-card-link">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
       </div>
-      <div class="dashboard-card-content">
-        <h3>Vehicles</h3>
-        <p class="dashboard-card-number"><%= vehicles ? vehicles.length : 0 %></p>
-        <a href="/vehicles" class="dashboard-card-link">View all <i class="fas fa-arrow-right"></i></a>
+      
+      <!-- Maintenance card -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-icon warning">
+          <i class="fas fa-tools"></i>
+        </div>
+        <div class="dashboard-card-content">
+          <h3>Maintenance</h3>
+          <p class="dashboard-card-number">
+            <%= maintenanceRecords ? maintenanceRecords.length : 0 %>
+          </p>
+          <a href="/maintenance" class="dashboard-card-link">View details <i class="fas fa-arrow-right"></i></a>
+        </div>
       </div>
-    </div>
-    
-    <!-- Maintenance card -->
-    <div class="dashboard-card">
-      <div class="dashboard-card-icon warning">
-        <i class="fas fa-tools"></i>
-      </div>
-      <div class="dashboard-card-content">
-        <h3>Maintenance</h3>
-        <p class="dashboard-card-number">
-          <%= maintenanceRecords ? maintenanceRecords.length : 0 %>
-        </p>
-        <a href="/maintenance" class="dashboard-card-link">View details <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    
-    <!-- Drivers card -->
-    <div class="dashboard-card">
-      <div class="dashboard-card-icon success">
-        <i class="fas fa-user"></i>
-      </div>
-      <div class="dashboard-card-content">
-        <h3>Drivers</h3>
-        <p class="dashboard-card-number">
-          <% 
-            let driversCount = 0;
-            if (vehicles) {
-              vehicles.forEach(v => {
-                if (v.driver) driversCount++;
-              });
-            }
-          %>
-          <%= driversCount %>
-        </p>
-        <a href="#" class="dashboard-card-link">View all <i class="fas fa-arrow-right"></i></a>
+      
+      <!-- Drivers card -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-icon success">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="dashboard-card-content">
+          <h3>Drivers</h3>
+          <p class="dashboard-card-number">
+            <% 
+              let driversCount = 0;
+              if (vehicles) {
+                vehicles.forEach(v => {
+                  if (v.driver) driversCount++;
+                });
+              }
+            %>
+            <%= driversCount %>
+          </p>
+          <a href="#" class="dashboard-card-link">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
       </div>
     </div>
   </div>
@@ -142,7 +152,7 @@
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-center">
         <h3>Upcoming Maintenance</h3>
-        <a href="/maintenance/create" class="btn btn-success btn-sm">
+        <a href="/maintenance/create" class="action-btn">
           <i class="fas fa-plus"></i> Schedule Maintenance
         </a>
       </div>
@@ -150,7 +160,7 @@
     <div class="card-body">
       <% if (maintenanceRecords && maintenanceRecords.length > 0) { %>
         <div class="table-responsive">
-          <table class="table">
+          <table class="table" id="maintenanceTable">
             <thead>
               <tr>
                 <th>Vehicle</th>
@@ -188,7 +198,14 @@
                     %>
                     <%= serviceName %>
                   </td>
-                  <td><%= new Date(record.scheduleDate).toLocaleDateString() %></td>
+                  <td>
+                    <% 
+                      // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
+                      const scheduleDateOnly = record.scheduleDate.split('T')[0];
+                      const displayDate = new Date(scheduleDateOnly + 'T12:00:00'); // Usar mediodía para evitar cambios de fecha
+                    %>
+                    <%= displayDate.toLocaleDateString() %>
+                  </td>
                   <td>
                     <span class="status-badge 
                       <%= record.status === 'scheduled' ? 'status-warning' : 
@@ -215,10 +232,12 @@
           </table>
         </div>
       <% } else { %>
-        <div class="text-center p-4">
-          <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-          <h4>No Pending Maintenance</h4>
-          <p>There are no maintenance tasks scheduled at the moment.</p>
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h4 class="empty-state-title">No Pending Maintenance</h4>
+          <p class="empty-state-message">There are no maintenance tasks scheduled at the moment.</p>
           <a href="/maintenance/create" class="btn btn-primary mt-2">
             <i class="fas fa-plus-circle"></i> Schedule Maintenance
           </a>
@@ -228,4 +247,74 @@
   </div>
 </div>
 
-<%- include('partials/footer') %> 
+<%- include('partials/footer') %>
+
+<style>
+  /* Estilos para la cabecera y tabla de mantenimiento */
+  .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .card-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  #maintenanceTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  #maintenanceTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--dark-color);
+    padding: 0.9rem 1.2rem;
+    vertical-align: middle;
+    border-bottom: 2px solid #eee;
+  }
+  
+  #maintenanceTable tbody tr {
+    transition: all 0.2s;
+  }
+  
+  #maintenanceTable tbody tr:nth-child(even) {
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+  
+  #maintenanceTable tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+  }
+  
+  /* Estilo para el botón de programar mantenimiento */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--success-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(46, 204, 113, 0.2);
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+    color: white;
+  }
+</style> 

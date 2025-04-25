@@ -1,259 +1,279 @@
 <%- include('../partials/header') %>
 
-<div class="page-header">
-  <div class="page-actions">
-    <a href="/vehicles" class="btn btn-secondary">
-      <i class="fas fa-arrow-left"></i> Back to List
-    </a>
-  </div>
-</div>
-
-<div class="vehicle-detail-container">
-  <div class="vehicle-image-container">
-    <div class="vehicle-name text-center">
-      <% if (vehicle.name) { %>
-        <div class="vehicle-nickname prominent"><%= vehicle.name %></div>
-      <% } %>
-      <h3><%= vehicle.brand %> <%= vehicle.model %> (<%= vehicle.year %>)</h3>
-      <span class="vehicle-status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
-        <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %>
-      </span>
-      
-      <!-- Información clave del vehículo encima de la imagen -->
-      <div class="vehicle-key-info-top">
-        <div class="key-info-row">
-          <div class="vehicle-plate-top"><%= vehicle.plate %></div>
-        </div>
-        <div class="key-info-row">
-          <div class="key-info-value-top"><%= vehicle.vin || 'VIN: Not registered' %></div>
-        </div>
-      </div>
-    </div>
-
-    <% if (vehicle.image) { %>
-      <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
-    <% } else { %>
-      <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
-    <% } %>
-  </div>
-  
-  <div class="vehicle-info-container">
-    <div class="card">
-      <div class="card-header">
-        <h3>Vehicle Information</h3>
-      </div>
-      <div class="card-body">
-        <div class="detail-grid">
-          <div class="detail-item">
-            <span class="detail-label">Name:</span>
-            <span class="detail-value"><%= vehicle.name || 'Not assigned' %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Brand:</span>
-            <span class="detail-value highlight"><%= vehicle.brand %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Model:</span>
-            <span class="detail-value highlight"><%= vehicle.model %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Type:</span>
-            <span class="detail-value">
-              <%= vehicle.type === 'car' ? 'Car' : 
-                 vehicle.type === 'truck' ? 'Truck' : 
-                 vehicle.type === 'van' ? 'Van' : 
-                 vehicle.type === 'motorcycle' ? 'Motorcycle' : 'Other' %>
-            </span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Year:</span>
-            <span class="detail-value highlight"><%= vehicle.year %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Status:</span>
-            <span class="detail-value"><%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Last Maintenance:</span>
-            <span class="detail-value"><%= vehicle.lastMaintenance ? new Date(vehicle.lastMaintenance).toLocaleDateString() : 'Not registered' %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Driver:</span>
-            <span class="detail-value"><%= vehicle.driver || 'Not assigned' %></span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Fuel Type:</span>
-            <span class="detail-value">
-              <%= vehicle.fuelType === 'gasoline' ? 'Gasoline' : 
-                 vehicle.fuelType === 'diesel' ? 'Diesel' : 
-                 vehicle.fuelType === 'electric' ? 'Electric' : 
-                 vehicle.fuelType === 'hybrid' ? 'Hybrid' : 'Other' %>
-            </span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">Mileage:</span>
-            <span class="detail-value"><%= vehicle.mileage.toLocaleString() %> miles</span>
-          </div>
-        </div>
-        
-        <!-- Botones de acciones -->
-        <div class="detail-actions mt-3">
-          <a href="/vehicles/<%= vehicle.id %>/edit" class="detail-action-btn edit-btn">
-            <i class="fas fa-edit"></i> Edit Vehicle
-          </a>
-          <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="detail-action-btn schedule-btn">
-            <i class="fas fa-tools"></i> Schedule Maintenance
-          </a>
-          <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="detail-action-form">
-            <button type="submit" class="detail-action-btn delete-btn" 
-                    onclick="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');">
-              <i class="fas fa-trash"></i> Delete Vehicle
-            </button>
-          </form>
-        </div>
-        
-        <!-- Timestamps -->
-        <div class="detail-timestamps">
-          <div class="timestamp-row">
-            <small><strong>Created:</strong> <%= new Date(vehicle.createdAt).toLocaleString() %></small>
-          </div>
-          <div class="timestamp-row">
-            <small><strong>Updated:</strong> <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Sección de Mantenimientos -->
-<div class="card mt-4">
-  <div class="card-header">
-    <div class="d-flex justify-content-between align-items-center">
-      <h3>Maintenance Records</h3>
-      <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="schedule-action-btn">
-        <i class="fas fa-plus"></i> Schedule Maintenance
+<div class="container">
+  <div class="page-header">
+    <h2><i class="fas fa-car"></i> Vehicle Details</h2>
+    <div class="page-actions">
+      <a href="/vehicles" class="btn btn-primary">
+        <i class="fas fa-arrow-left"></i> Back to List
       </a>
     </div>
   </div>
-  <div class="card-body">
-    <% if (maintenanceRecords && maintenanceRecords.length > 0) { %>
-      <!-- Filtros -->
-      <div class="maintenance-filters mb-3">
-        <div class="form-row">
-          <div class="form-col">
-            <label for="typeFilter">Service Type:</label>
-            <select id="typeFilter" class="form-control">
-              <option value="">All Types</option>
-              <% if (serviceTypes && serviceTypes.length > 0) { %>
-                <% serviceTypes.forEach(service => { %>
-                  <option value="<%= service.id %>"><%= service.name %></option>
-                <% }); %>
-              <% } %>
-            </select>
+
+  <div class="vehicle-detail-container">
+    <div class="vehicle-image-container">
+      <div class="vehicle-name text-center">
+        <% if (vehicle.name) { %>
+          <div class="vehicle-nickname prominent"><%= vehicle.name %></div>
+        <% } %>
+        <h3><%= vehicle.brand %> <%= vehicle.model %> (<%= vehicle.year %>)</h3>
+        <span class="vehicle-status-badge <%= vehicle.status === 'active' ? 'status-active' : vehicle.status === 'maintenance' ? 'status-maintenance' : 'status-retired' %>">
+          <%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %>
+        </span>
+        
+        <!-- Información clave del vehículo encima de la imagen -->
+        <div class="vehicle-key-info-top">
+          <div class="key-info-row">
+            <div class="vehicle-plate-top"><%= vehicle.plate %></div>
           </div>
-          <div class="form-col">
-            <label for="statusFilter">Status:</label>
-            <select id="statusFilter" class="form-control">
-              <option value="">All Statuses</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+          <div class="key-info-row">
+            <div class="key-info-value-top"><%= vehicle.vin || 'VIN: Not registered' %></div>
           </div>
-          <div class="form-col">
-            <label for="dateFilter">Date Range:</label>
-            <div class="d-flex gap-2">
-              <input type="date" id="dateFilterFrom" class="form-control" placeholder="From">
-              <input type="date" id="dateFilterTo" class="form-control" placeholder="To">
+        </div>
+      </div>
+
+      <% if (vehicle.image) { %>
+        <img src="<%= vehicle.image %>" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
+      <% } else { %>
+        <img src="/images/vehicles/default-vehicle.svg" alt="<%= vehicle.brand %> <%= vehicle.model %>" class="vehicle-detail-image">
+      <% } %>
+    </div>
+    
+    <div class="vehicle-info-container">
+      <div class="card">
+        <div class="card-header">
+          <h3>Vehicle Information</h3>
+        </div>
+        <div class="card-body">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Name:</span>
+              <span class="detail-value"><%= vehicle.name || 'Not assigned' %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Brand:</span>
+              <span class="detail-value highlight"><%= vehicle.brand %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Model:</span>
+              <span class="detail-value highlight"><%= vehicle.model %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Type:</span>
+              <span class="detail-value">
+                <%= vehicle.type === 'car' ? 'Car' : 
+                   vehicle.type === 'truck' ? 'Truck' : 
+                   vehicle.type === 'van' ? 'Van' : 
+                   vehicle.type === 'motorcycle' ? 'Motorcycle' : 'Other' %>
+              </span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Year:</span>
+              <span class="detail-value highlight"><%= vehicle.year %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Status:</span>
+              <span class="detail-value"><%= vehicle.status === 'active' ? 'Active' : vehicle.status === 'maintenance' ? 'In Maintenance' : 'Retired' %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Last Maintenance:</span>
+              <span class="detail-value"><%= vehicle.lastMaintenance ? new Date(vehicle.lastMaintenance).toLocaleDateString() : 'Not registered' %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Driver:</span>
+              <span class="detail-value"><%= vehicle.driver || 'Not assigned' %></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Fuel Type:</span>
+              <span class="detail-value">
+                <%= vehicle.fuelType === 'gasoline' ? 'Gasoline' : 
+                   vehicle.fuelType === 'diesel' ? 'Diesel' : 
+                   vehicle.fuelType === 'electric' ? 'Electric' : 
+                   vehicle.fuelType === 'hybrid' ? 'Hybrid' : 'Other' %>
+              </span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Mileage:</span>
+              <span class="detail-value"><%= vehicle.mileage.toLocaleString() %> miles</span>
+            </div>
+          </div>
+          
+          <!-- Botones de acciones -->
+          <div class="vehicle-card-actions">
+            <a href="/vehicles/<%= vehicle.id %>/edit" class="vehicle-action-btn view-btn">
+              <i class="fas fa-edit"></i> Edit Vehicle
+            </a>
+            <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="vehicle-action-btn edit-btn">
+              <i class="fas fa-tools"></i> Schedule Maintenance
+            </a>
+            <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="vehicle-action-form">
+              <button type="submit" class="vehicle-action-btn delete-btn" 
+                      onclick="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');">
+                <i class="fas fa-trash"></i> Delete Vehicle
+              </button>
+            </form>
+          </div>
+          
+          <!-- Timestamps -->
+          <div class="detail-timestamps">
+            <div class="timestamp-row">
+              <small><strong>Created:</strong> <%= new Date(vehicle.createdAt).toLocaleString() %></small>
+            </div>
+            <div class="timestamp-row">
+              <small><strong>Updated:</strong> <%= new Date(vehicle.updatedAt).toLocaleString() %></small>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="table-responsive">
-        <table class="table" id="maintenanceTable">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Service Provider</th>
-              <th>Cost</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% maintenanceRecords.forEach(record => { %>
-              <tr data-type="<%= record.maintenanceType %>" data-status="<%= record.status %>" data-date="<%= record.scheduleDate %>">
-                <td>
-                  <% 
-                  let serviceName = 'Other';
-                  if (serviceTypes && serviceTypes.length > 0) {
-                    const serviceType = serviceTypes.find(s => s.id === record.maintenanceType);
-                    if (serviceType) {
-                      serviceName = serviceType.name;
-                    }
-                  }
-                  %>
-                  <%= serviceName %>
-                </td>
-                <td><%= new Date(record.scheduleDate).toLocaleDateString() %></td>
-                <td>
-                  <span class="status-badge 
-                    <%= record.status === 'scheduled' ? 'status-warning' : 
-                       record.status === 'in_progress' ? 'status-primary' : 
-                       record.status === 'completed' ? 'status-active' : 
-                       'status-retired' %>">
-                    <%= record.status === 'scheduled' ? 'Scheduled' : 
-                       record.status === 'in_progress' ? 'In Progress' : 
-                       record.status === 'completed' ? 'Completed' : 
-                       'Cancelled' %>
-                  </span>
-                </td>
-                <td><%= record.serviceProvider || 'N/A' %></td>
-                <td><%= record.cost ? '$' + record.cost.toFixed(2) : 'N/A' %></td>
-                <td class="action-cell">
-                  <a href="/maintenance/<%= record.id %>" class="btn-icon text-primary" title="View details">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                  <a href="/maintenance/<%= record.id %>/edit" class="btn-icon text-warning" title="Edit">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                  <form action="/maintenance/<%= record.id %>/delete" method="POST" style="display: inline;">
-                    <button type="submit" class="btn-icon text-danger" title="Delete" 
-                            onclick="return confirm('Are you sure you want to delete this maintenance record?')">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-      
-      <div id="noRecordsMessage" style="display: none;" class="text-center mt-3">
-        <p>No maintenance records match the selected filters.</p>
-      </div>
-    <% } else { %>
-      <div class="text-center">
-        <p>No maintenance records found for this vehicle.</p>
-        <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="detail-action-btn schedule-btn" style="display: inline-block; min-width: 200px; margin-top: 10px;">
-          <i class="fas fa-plus-circle"></i> Schedule First Maintenance
+  <!-- Sección de Mantenimientos -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3>Maintenance Records</h3>
+        <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="action-btn">
+          <i class="fas fa-plus"></i> Schedule Maintenance
         </a>
       </div>
-    <% } %>
+    </div>
+    <div class="card-body">
+      <% if (maintenanceRecords && maintenanceRecords.length > 0) { %>
+        <!-- Filtros -->
+        <div class="maintenance-filters mb-3">
+          <div class="form-row">
+            <div class="form-col">
+              <label for="typeFilter">Service Type:</label>
+              <select id="typeFilter" class="form-control">
+                <option value="">All Types</option>
+                <% if (serviceTypes && serviceTypes.length > 0) { %>
+                  <% serviceTypes.forEach(service => { %>
+                    <option value="<%= service.id %>"><%= service.name %></option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+            <div class="form-col">
+              <label for="statusFilter">Status:</label>
+              <select id="statusFilter" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="form-col">
+              <label for="dateFilter">Date Range:</label>
+              <div class="d-flex gap-2">
+                <input type="date" id="dateFilterFrom" class="form-control" placeholder="From">
+                <input type="date" id="dateFilterTo" class="form-control" placeholder="To">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table" id="maintenanceTable">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Mileage</th>
+                <th>Cost</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% maintenanceRecords.forEach(record => { %>
+                <tr data-type="<%= record.maintenanceType %>" data-status="<%= record.status %>" data-date="<%= record.completionDate || record.scheduleDate %>">
+                  <td>
+                    <% 
+                    let serviceName = 'Other';
+                    if (serviceTypes && serviceTypes.length > 0) {
+                      const serviceType = serviceTypes.find(s => s.id === record.maintenanceType);
+                      if (serviceType) {
+                        serviceName = serviceType.name;
+                      }
+                    }
+                    %>
+                    <%= serviceName %>
+                  </td>
+                  <td>
+                    <% if (record.completionDate) { %>
+                      <% 
+                        // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
+                        const completionDateOnly = record.completionDate.split('T')[0];
+                        const displayDate = new Date(completionDateOnly + 'T12:00:00'); // Usar mediodía para evitar cambios de fecha
+                      %>
+                      <%= displayDate.toLocaleDateString() %> 
+                      <small class="text-muted">(Completed)</small>
+                    <% } else { %>
+                      <% 
+                        // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
+                        const scheduleDateOnly = record.scheduleDate.split('T')[0];
+                        const displayDate = new Date(scheduleDateOnly + 'T12:00:00'); // Usar mediodía para evitar cambios de fecha
+                      %>
+                      <%= displayDate.toLocaleDateString() %>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="status-badge 
+                      <%= record.status === 'scheduled' ? 'status-warning' : 
+                         record.status === 'in_progress' ? 'status-primary' : 
+                         record.status === 'completed' ? 'status-active' : 
+                         'status-retired' %>">
+                      <%= record.status === 'scheduled' ? 'Scheduled' : 
+                         record.status === 'in_progress' ? 'In Progress' : 
+                         record.status === 'completed' ? 'Completed' : 
+                         'Cancelled' %>
+                    </span>
+                  </td>
+                  <td><%= record.mileage ? record.mileage.toLocaleString() + ' miles' : 'N/A' %></td>
+                  <td><%= record.cost ? '$' + record.cost.toFixed(2) : 'N/A' %></td>
+                  <td class="action-cell">
+                    <a href="/maintenance/<%= record.id %>" class="btn-icon text-primary" title="View details">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/maintenance/<%= record.id %>/edit" class="btn-icon text-warning" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/maintenance/<%= record.id %>/delete" method="POST" style="display: inline;">
+                      <button type="submit" class="btn-icon text-danger" title="Delete" 
+                              onclick="return confirm('Are you sure you want to delete this maintenance record?')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="noRecordsMessage" style="display: none;" class="text-center mt-3">
+          <p>No maintenance records match the selected filters.</p>
+        </div>
+      <% } else { %>
+        <div class="text-center">
+          <p>No maintenance records found for this vehicle.</p>
+          <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="detail-action-btn schedule-btn" style="display: inline-block; min-width: 200px; margin-top: 10px;">
+            <i class="fas fa-plus-circle"></i> Schedule First Maintenance
+          </a>
+        </div>
+      <% } %>
+    </div>
   </div>
 </div>
 
@@ -367,92 +387,237 @@
         width: 100%;
       }
     }
-    
-    /* Nuevos estilos para botones */
-    .detail-actions {
-      display: flex;
-      gap: 12px;
-    }
-    
-    .detail-action-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px 16px;
-      font-size: 0.9rem;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      flex: 1;
-    }
-    
-    .detail-action-form {
-      flex: 1;
-      display: flex;
-    }
-    
-    .edit-btn {
-      background-color: #3498db;
-      color: white;
-    }
-    
-    .edit-btn:hover {
-      background-color: #2980b9;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-      color: white;
-    }
-    
-    .schedule-btn {
-      background-color: #2ecc71;
-      color: white;
-    }
-    
-    .schedule-btn:hover {
-      background-color: #27ae60;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-      color: white;
-    }
-    
-    .delete-btn {
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-    }
-    
-    .delete-btn:hover {
-      background-color: #c0392b;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-    }
-    
-    .schedule-action-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      background-color: #2ecc71;
-      color: white;
-    }
-    
-    .schedule-action-btn:hover {
-      background-color: #27ae60;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-      color: white;
-    }
   </style>
 <% } %>
+
+<style>
+  /* Estilos modernos para las tarjetas de información del vehículo */
+  .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .card-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  /* Estilos para los botones de acción */
+  .vehicle-card-actions {
+    display: flex;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    gap: 0;
+  }
+  
+  .vehicle-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    padding: 12px 0;
+    text-align: center;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: inherit;
+  }
+  
+  .view-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+  
+  .view-btn:hover {
+    transform: translateY(-2px);
+    background-color: #2980b9;
+    color: white;
+  }
+  
+  .edit-btn {
+    background-color: var(--warning-color);
+    color: white;
+  }
+  
+  .edit-btn:hover {
+    transform: translateY(-2px);
+    background-color: #d35400;
+    color: white;
+  }
+  
+  .vehicle-action-form {
+    flex: 1;
+    display: flex;
+  }
+  
+  .delete-btn {
+    background-color: var(--danger-color);
+    color: white;
+    width: 100%;
+    border-radius: 0;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+  
+  .delete-btn:hover {
+    transform: translateY(-2px);
+    background-color: #c0392b;
+    color: white;
+  }
+  
+  /* Estilos para los filtros */
+  .maintenance-filters {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  /* Mejoras para los timestamps */
+  .detail-timestamps {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+    color: #777;
+  }
+  
+  /* Estilos para la página de detalles */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .page-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+  }
+  
+  .page-header h2 i {
+    color: var(--primary-color);
+  }
+  
+  .page-actions .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .page-actions .btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+  }
+  
+  /* Estilo del botón primario */
+  .page-actions .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .page-actions .btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+  }
+  
+  /* Mejoras en el contenedor principal */
+  .vehicle-detail-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-bottom: 1rem;
+  }
+  
+  .vehicle-image-container {
+    flex: 0 0 300px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .vehicle-info-container {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border: none;
+    margin-bottom: 25px;
+  }
+  
+  /* Estilos para la tabla de mantenimiento */
+  #maintenanceTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  #maintenanceTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--dark-color);
+    padding: 0.9rem 1.2rem;
+    vertical-align: middle;
+    border-bottom: 2px solid #eee;
+  }
+  
+  #maintenanceTable tbody tr:nth-child(even) {
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+  
+  #maintenanceTable tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+  }
+
+  /* Ajuste para acercar la sección de mantenimiento */
+  .mt-4 {
+    margin-top: 1rem !important;
+  }
+</style>
 
 <%- include('../partials/footer') %> 

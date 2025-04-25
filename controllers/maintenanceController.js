@@ -23,7 +23,15 @@ const readJsonFile = (filePath, defaultValue = []) => {
 // Lista todos los registros de mantenimiento
 exports.getAllMaintenanceRecords = (req, res, next) => {
   try {
-    const maintenanceRecords = Maintenance.getAllWithVehicles();
+    let maintenanceRecords = Maintenance.getAllWithVehicles();
+    
+    // Ordenar los registros por fecha de programación (más reciente primero)
+    maintenanceRecords.sort((a, b) => {
+      // Si hay fecha de finalización, usar esa para la comparación
+      const dateA = a.completionDate ? new Date(a.completionDate) : new Date(a.scheduleDate);
+      const dateB = b.completionDate ? new Date(b.completionDate) : new Date(b.scheduleDate);
+      return dateB - dateA; // Orden descendente (más reciente primero)
+    });
     
     // Obtener los tipos de servicio del archivo JSON
     const serviceTypes = readJsonFile(serviceTypesDataPath, []);

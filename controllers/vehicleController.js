@@ -138,7 +138,15 @@ exports.getVehicleDetails = (req, res, next) => {
     }
     
     // Obtener registros de mantenimiento para este vehículo
-    const maintenanceRecords = Maintenance.findByVehicleId(vehicle.id);
+    let maintenanceRecords = Maintenance.findByVehicleId(vehicle.id);
+    
+    // Ordenar los registros por fecha más reciente primero
+    maintenanceRecords.sort((a, b) => {
+      // Si hay fecha de finalización, usar esa para la comparación
+      const dateA = a.completionDate ? new Date(a.completionDate) : new Date(a.scheduleDate);
+      const dateB = b.completionDate ? new Date(b.completionDate) : new Date(b.scheduleDate);
+      return dateB - dateA; // Orden descendente (más reciente primero)
+    });
     
     // Obtener los tipos de servicio del archivo JSON
     const serviceTypes = readJsonFile(serviceTypesDataPath, []);

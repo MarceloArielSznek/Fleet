@@ -1,169 +1,173 @@
 <%- include('../partials/header') %>
 
-<div class="page-header">
-  <h2>Edit Maintenance Record</h2>
-  <div class="page-actions">
-    <a href="/maintenance/<%= maintenance.id %>" class="btn btn-primary">
-      <i class="fas fa-eye"></i> View Details
-    </a>
-    <a href="/maintenance" class="btn btn-secondary">
-      <i class="fas fa-arrow-left"></i> Back to List
-    </a>
+<div class="container">
+  <div class="page-header">
+    <h2><i class="fas fa-tools"></i> Edit Maintenance Record</h2>
+    <div class="page-actions">
+      <a href="/maintenance/<%= maintenance.id %>" class="btn btn-primary">
+        <i class="fas fa-eye"></i> View Details
+      </a>
+      <a href="/maintenance" class="btn btn-primary">
+        <i class="fas fa-arrow-left"></i> Back to List
+      </a>
+    </div>
   </div>
-</div>
 
-<div class="card">
-  <div class="card-header">
-    <h3>Maintenance Information</h3>
-  </div>
-  <div class="card-body">
-    <form action="/maintenance/<%= maintenance.id %>" method="POST">
-      <div class="form-row">
-        <div class="form-group form-col">
-          <label for="vehicleId" class="form-label">Vehicle</label>
-          <select id="vehicleId" name="vehicleId" class="form-control" required>
-            <option value="">Select a Vehicle</option>
-            <% vehicles.forEach(vehicle => { %>
-              <option value="<%= vehicle.id %>" <%= maintenance.vehicleId === vehicle.id ? 'selected' : '' %>>
-                <%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %>
-              </option>
-            <% }) %>
-          </select>
+  <div class="card">
+    <div class="card-header">
+      <h3>Maintenance Information</h3>
+    </div>
+    <div class="card-body">
+      <form action="/maintenance/<%= maintenance.id %>" method="POST">
+        <div class="form-row">
+          <div class="form-group form-col">
+            <label for="vehicleId" class="form-label">Vehicle</label>
+            <select id="vehicleId" name="vehicleId" class="form-control" required>
+              <option value="">Select a Vehicle</option>
+              <% vehicles.forEach(vehicle => { %>
+                <option value="<%= vehicle.id %>" <%= maintenance.vehicleId === vehicle.id ? 'selected' : '' %>>
+                  <%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          
+          <div class="form-group form-col">
+            <label for="maintenanceType" class="form-label">Maintenance Type</label>
+            <select id="maintenanceType" name="maintenanceType" class="form-control" required>
+              <option value="">Select Maintenance Type</option>
+              <% if (serviceTypes && serviceTypes.length > 0) { %>
+                <% serviceTypes.forEach(serviceType => { %>
+                  <option value="<%= serviceType.id %>" <%= maintenance.maintenanceType === serviceType.id ? 'selected' : '' %>><%= serviceType.name %></option>
+                <% }); %>
+              <% } else { %>
+                <!-- Opciones de respaldo en caso de que no haya servicios disponibles -->
+                <option value="oil_change" <%= maintenance.maintenanceType === 'oil_change' ? 'selected' : '' %>>Oil Change</option>
+                <option value="tire_rotation" <%= maintenance.maintenanceType === 'tire_rotation' ? 'selected' : '' %>>Tire Rotation</option>
+                <option value="brake_service" <%= maintenance.maintenanceType === 'brake_service' ? 'selected' : '' %>>Brake Service</option>
+                <option value="engine_tuning" <%= maintenance.maintenanceType === 'engine_tuning' ? 'selected' : '' %>>Engine Tuning</option>
+                <option value="battery_replacement" <%= maintenance.maintenanceType === 'battery_replacement' ? 'selected' : '' %>>Battery Replacement</option>
+                <option value="air_filter" <%= maintenance.maintenanceType === 'air_filter' ? 'selected' : '' %>>Air Filter Replacement</option>
+                <option value="general_inspection" <%= maintenance.maintenanceType === 'general_inspection' ? 'selected' : '' %>>General Inspection</option>
+                <option value="other" <%= maintenance.maintenanceType === 'other' ? 'selected' : '' %>>Other</option>
+              <% } %>
+            </select>
+          </div>
+          
+          <div class="form-group form-col">
+            <label for="status" class="form-label">Status</label>
+            <select id="status" name="status" class="form-control" required>
+              <option value="scheduled" <%= maintenance.status === 'scheduled' ? 'selected' : '' %>>Scheduled</option>
+              <option value="in_progress" <%= maintenance.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+              <option value="completed" <%= maintenance.status === 'completed' ? 'selected' : '' %>>Completed</option>
+              <option value="cancelled" <%= maintenance.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+          </div>
         </div>
         
-        <div class="form-group form-col">
-          <label for="maintenanceType" class="form-label">Maintenance Type</label>
-          <select id="maintenanceType" name="maintenanceType" class="form-control" required>
-            <option value="">Select Maintenance Type</option>
-            <% if (serviceTypes && serviceTypes.length > 0) { %>
-              <% serviceTypes.forEach(serviceType => { %>
-                <option value="<%= serviceType.id %>" <%= maintenance.maintenanceType === serviceType.id ? 'selected' : '' %>><%= serviceType.name %></option>
-              <% }); %>
-            <% } else { %>
-              <!-- Opciones de respaldo en caso de que no haya servicios disponibles -->
-              <option value="oil_change" <%= maintenance.maintenanceType === 'oil_change' ? 'selected' : '' %>>Oil Change</option>
-              <option value="tire_rotation" <%= maintenance.maintenanceType === 'tire_rotation' ? 'selected' : '' %>>Tire Rotation</option>
-              <option value="brake_service" <%= maintenance.maintenanceType === 'brake_service' ? 'selected' : '' %>>Brake Service</option>
-              <option value="engine_tuning" <%= maintenance.maintenanceType === 'engine_tuning' ? 'selected' : '' %>>Engine Tuning</option>
-              <option value="battery_replacement" <%= maintenance.maintenanceType === 'battery_replacement' ? 'selected' : '' %>>Battery Replacement</option>
-              <option value="air_filter" <%= maintenance.maintenanceType === 'air_filter' ? 'selected' : '' %>>Air Filter Replacement</option>
-              <option value="general_inspection" <%= maintenance.maintenanceType === 'general_inspection' ? 'selected' : '' %>>General Inspection</option>
-              <option value="other" <%= maintenance.maintenanceType === 'other' ? 'selected' : '' %>>Other</option>
-            <% } %>
-          </select>
+        <div class="form-row">
+          <div class="form-group form-col">
+            <label for="scheduleDate" class="form-label">Schedule Date</label>
+            <input type="date" id="scheduleDate" name="scheduleDate" class="form-control" 
+                   value="<%= maintenance.scheduleDate ? maintenance.scheduleDate.split('T')[0] : '' %>" required>
+          </div>
+          
+          <div class="form-group form-col">
+            <label for="completionDate" class="form-label">Completion Date</label>
+            <input type="date" id="completionDate" name="completionDate" class="form-control"
+                   value="<%= maintenance.completionDate ? maintenance.completionDate.split('T')[0] : '' %>"
+                   <%= maintenance.status === 'completed' ? 'required' : '' %>>
+          </div>
+          
+          <div class="form-group form-col">
+            <label for="cost" class="form-label">Cost (USD)</label>
+            <input type="number" id="cost" name="cost" step="0.01" min="0" class="form-control"
+                   value="<%= maintenance.cost || '' %>">
+          </div>
         </div>
         
-        <div class="form-group form-col">
-          <label for="status" class="form-label">Status</label>
-          <select id="status" name="status" class="form-control" required>
-            <option value="scheduled" <%= maintenance.status === 'scheduled' ? 'selected' : '' %>>Scheduled</option>
-            <option value="in_progress" <%= maintenance.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
-            <option value="completed" <%= maintenance.status === 'completed' ? 'selected' : '' %>>Completed</option>
-            <option value="cancelled" <%= maintenance.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group form-col">
-          <label for="scheduleDate" class="form-label">Schedule Date</label>
-          <input type="date" id="scheduleDate" name="scheduleDate" class="form-control" 
-                 value="<%= maintenance.scheduleDate ? maintenance.scheduleDate.split('T')[0] : '' %>" required>
-        </div>
-        
-        <div class="form-group form-col">
-          <label for="completionDate" class="form-label">Completion Date</label>
-          <input type="date" id="completionDate" name="completionDate" class="form-control"
-                 value="<%= maintenance.completionDate ? maintenance.completionDate.split('T')[0] : '' %>"
-                 <%= maintenance.status === 'completed' ? 'required' : '' %>>
+        <div class="form-row">
+          <div class="form-group form-col">
+            <label for="serviceProvider" class="form-label">Service Provider</label>
+            <input type="text" id="serviceProvider" name="serviceProvider" class="form-control"
+                   value="<%= maintenance.serviceProvider || '' %>">
+          </div>
+          
+          <div class="form-group form-col">
+            <label for="serviceLocation" class="form-label">Service Location</label>
+            <input type="text" id="serviceLocation" name="serviceLocation" class="form-control"
+                   value="<%= maintenance.serviceLocation || '' %>">
+          </div>
+          
+          <div class="form-group form-col">
+            <label for="mileage" class="form-label">Current Mileage</label>
+            <input type="number" id="mileage" name="mileage" min="0" class="form-control"
+                   value="<%= maintenance.mileage || '' %>">
+          </div>
         </div>
         
-        <div class="form-group form-col">
-          <label for="cost" class="form-label">Cost (USD)</label>
-          <input type="number" id="cost" name="cost" step="0.01" min="0" class="form-control"
-                 value="<%= maintenance.cost || '' %>">
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group form-col">
-          <label for="serviceProvider" class="form-label">Service Provider</label>
-          <input type="text" id="serviceProvider" name="serviceProvider" class="form-control"
-                 value="<%= maintenance.serviceProvider || '' %>">
+        <div class="form-group">
+          <label for="notes" class="form-label">Notes</label>
+          <textarea id="notes" name="notes" rows="4" class="form-control"><%= maintenance.notes || '' %></textarea>
         </div>
         
-        <div class="form-group form-col">
-          <label for="serviceLocation" class="form-label">Service Location</label>
-          <input type="text" id="serviceLocation" name="serviceLocation" class="form-control"
-                 value="<%= maintenance.serviceLocation || '' %>">
+        <div class="form-group">
+          <label for="partsReplaced" class="form-label">Parts Replaced</label>
+          <textarea id="partsReplaced" name="partsReplaced" rows="2" class="form-control"><%= maintenance.partsReplaced || '' %></textarea>
         </div>
         
-        <div class="form-group form-col">
-          <label for="mileage" class="form-label">Current Mileage</label>
-          <input type="number" id="mileage" name="mileage" min="0" class="form-control"
-                 value="<%= maintenance.mileage || '' %>">
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="notes" class="form-label">Notes</label>
-        <textarea id="notes" name="notes" rows="4" class="form-control"><%= maintenance.notes || '' %></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label for="partsReplaced" class="form-label">Parts Replaced</label>
-        <textarea id="partsReplaced" name="partsReplaced" rows="2" class="form-control"><%= maintenance.partsReplaced || '' %></textarea>
-      </div>
-      
-      <!-- Sección de documentos -->
-      <div class="form-group">
-        <label class="form-label">Documents & Receipts</label>
-        <% if (maintenance.documents && maintenance.documents.length > 0) { %>
-          <div class="documents-compact">
-            <% maintenance.documents.forEach(doc => { %>
-              <div class="document-item-small">
-                <div class="document-icon-small">
-                  <% if (doc.type === 'pdf') { %>
-                    <i class="fas fa-file-pdf"></i>
-                  <% } else if (doc.type === 'image') { %>
-                    <i class="fas fa-file-image"></i>
-                  <% } else { %>
-                    <i class="fas fa-file"></i>
-                  <% } %>
+        <!-- Sección de documentos -->
+        <div class="form-group">
+          <label class="form-label">Documents & Receipts</label>
+          <% if (maintenance.documents && maintenance.documents.length > 0) { %>
+            <div class="documents-compact">
+              <% maintenance.documents.forEach(doc => { %>
+                <div class="document-item-small">
+                  <div class="document-icon-small">
+                    <% if (doc.type === 'pdf') { %>
+                      <i class="fas fa-file-pdf"></i>
+                    <% } else if (doc.type === 'image') { %>
+                      <i class="fas fa-file-image"></i>
+                    <% } else { %>
+                      <i class="fas fa-file"></i>
+                    <% } %>
+                  </div>
+                  <div class="document-info-small">
+                    <span class="document-name-small"><%= doc.name %></span>
+                  </div>
                 </div>
-                <div class="document-info-small">
-                  <span class="document-name-small"><%= doc.name %></span>
-                </div>
+              <% }) %>
+              <div class="documents-actions">
+                <a href="/maintenance/<%= maintenance.id %>" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-eye"></i> View Documents
+                </a>
+                <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-sm btn-outline-success">
+                  <i class="fas fa-upload"></i> Upload More
+                </a>
               </div>
-            <% }) %>
-            <div class="documents-actions">
-              <a href="/maintenance/<%= maintenance.id %>" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-eye"></i> View Documents
-              </a>
-              <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-sm btn-outline-success">
-                <i class="fas fa-upload"></i> Upload More
+            </div>
+          <% } else { %>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> You can upload receipts, warranties, and other documents after saving this maintenance record.
+            </div>
+            <div class="mb-3">
+              <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-upload"></i> Upload Documents
               </a>
             </div>
-          </div>
-        <% } else { %>
-          <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> You can upload receipts, warranties, and other documents after saving this maintenance record.
-          </div>
-          <div class="mb-3">
-            <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-sm btn-outline-primary">
-              <i class="fas fa-upload"></i> Upload Documents
-            </a>
-          </div>
-        <% } %>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" class="btn btn-success">
-          <i class="fas fa-save"></i> Update Maintenance
-        </button>
-        <a href="/maintenance/<%= maintenance.id %>" class="btn btn-secondary">Cancel</a>
-      </div>
-    </form>
+          <% } %>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="action-btn">
+            <i class="fas fa-save"></i> Update Maintenance
+          </button>
+          <a href="/maintenance/<%= maintenance.id %>" class="action-btn cancel-btn">
+            <i class="fas fa-times"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -201,5 +205,163 @@
     }
   });
 </script>
+
+<style>
+  /* Estilos modernos para el formulario de mantenimiento */
+  .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .card-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  /* Estilos para los botones de acción */
+  .form-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--success-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(46, 204, 113, 0.2);
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+    color: white;
+  }
+  
+  .cancel-btn {
+    background-color: #6c757d;
+    box-shadow: 0 3px 10px rgba(108, 117, 125, 0.2);
+  }
+  
+  .cancel-btn:hover {
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+  }
+  
+  /* Mejoras para la página */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .page-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+  }
+  
+  .page-header h2 i {
+    color: var(--primary-color);
+  }
+  
+  .card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border: none;
+    margin-bottom: 25px;
+  }
+  
+  /* Estilos para los documentos */
+  .documents-compact {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .document-item-small {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .document-icon-small {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: var(--primary-color);
+  }
+  
+  .document-name-small {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .documents-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  
+  .btn-outline-primary, .btn-sm.btn-outline-primary {
+    background-color: rgba(52, 152, 219, 0.1);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    transition: all 0.2s;
+    padding: 5px 12px;
+    border-radius: 6px;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+  }
+  
+  .btn-outline-success, .btn-sm.btn-outline-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+    transition: all 0.2s;
+    padding: 5px 12px;
+    border-radius: 6px;
+  }
+  
+  .btn-outline-success:hover {
+    background-color: var(--success-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3);
+  }
+</style>
 
 <%- include('../partials/footer') %> 

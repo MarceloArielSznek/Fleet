@@ -1,12 +1,14 @@
 <%- include('../partials/header') %>
 
-<div class="page-header">
-  <div class="page-actions">
-    <a href="/maintenance" class="btn btn-secondary">
-      <i class="fas fa-arrow-left"></i> Back to List
-    </a>
+<div class="container">
+  <div class="page-header">
+    <h2><i class="fas fa-tools"></i> Maintenance Details</h2>
+    <div class="page-actions">
+      <a href="/maintenance" class="btn btn-primary">
+        <i class="fas fa-arrow-left"></i> Back to List
+      </a>
+    </div>
   </div>
-</div>
 
 <div class="vehicle-detail-container">
   <div class="vehicle-image-container">
@@ -132,20 +134,23 @@
         </div>
         
         <!-- Botones de acciones -->
-        <div class="detail-actions mt-3">
-          <a href="/maintenance/<%= maintenance.id %>/edit" class="btn btn-primary btn-sm">
-            <i class="fas fa-edit"></i> Edit Maintenance
-          </a>
-          <% if (maintenance.vehicle) { %>
-          <a href="/vehicles/<%= maintenance.vehicle.id %>" class="btn btn-success btn-sm">
-            <i class="fas fa-car"></i> View Vehicle
-          </a>
-          <% } %>
-          <form action="/maintenance/<%= maintenance.id %>/delete" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this maintenance record? This action cannot be undone.');">
-            <button type="submit" class="btn btn-danger btn-sm">
-              <i class="fas fa-trash"></i> Delete Record
-            </button>
-          </form>
+        <div class="vehicle-card-actions">
+          <div class="action-buttons-group">
+            <% if (maintenance.vehicle) { %>
+            <a href="/vehicles/<%= maintenance.vehicle.id %>" class="action-group-btn view-vehicle-btn">
+              <i class="fas fa-car"></i> View Vehicle
+            </a>
+            <% } %>
+            <a href="/maintenance/<%= maintenance.id %>/edit" class="action-group-btn edit-btn">
+              <i class="fas fa-edit"></i> Edit Maintenance
+            </a>
+            <form action="/maintenance/<%= maintenance.id %>/delete" method="POST" class="vehicle-action-form">
+              <button type="submit" class="action-group-btn delete-btn" 
+                      onclick="return confirm('Are you sure you want to delete this maintenance record? This action cannot be undone.');">
+                <i class="fas fa-trash"></i> Delete Record
+              </button>
+            </form>
+          </div>
         </div>
         
         <!-- Timestamps -->
@@ -195,7 +200,7 @@
   <div class="card-header">
     <div class="d-flex justify-content-between align-items-center">
       <h3>Documents & Receipts</h3>
-      <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-primary btn-sm">
+      <a href="/maintenance/<%= maintenance.id %>/upload" class="action-btn">
         <i class="fas fa-upload"></i> Upload New Document
       </a>
     </div>
@@ -248,7 +253,7 @@
               </a>
               <form action="/maintenance/<%= maintenance.id %>/documents/<%= doc.id %>/delete" method="POST" style="display: inline;">
                 <button type="submit" class="btn-icon text-danger" title="Delete document" 
-                        onclick="return confirm('Are you sure you want to delete this document?')">
+                        onclick="return confirm('Are you sure you want to delete this document? This action cannot be undone.');">
                   <i class="fas fa-trash"></i>
                 </button>
               </form>
@@ -257,16 +262,253 @@
         <% }) %>
       </div>
     <% } else { %>
-      <div class="text-center p-4">
-        <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
-        <h4>No Documents</h4>
-        <p>There are no warranty documents or receipts for this maintenance record.</p>
-        <a href="/maintenance/<%= maintenance.id %>/upload" class="btn btn-primary mt-2">
-          <i class="fas fa-upload"></i> Upload Document
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h4 class="empty-state-title">No Documents</h4>
+        <p class="empty-state-message">There are no documents or receipts attached to this maintenance record yet.</p>
+        <a href="/maintenance/<%= maintenance.id %>/upload" class="action-btn">
+          <i class="fas fa-upload"></i> Upload First Document
         </a>
       </div>
     <% } %>
   </div>
 </div>
+</div>
+
+<style>
+  /* Estilos modernos para las tarjetas */
+  .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .card-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  /* Botones de acción para detalles de mantenimiento */
+  .vehicle-card-actions {
+    margin-top: 20px;
+  }
+  
+  .action-buttons-group {
+    display: flex;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .action-group-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 15px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: white;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .view-vehicle-btn {
+    background-color: #3498db;
+  }
+  
+  .view-vehicle-btn:hover {
+    background-color: #2980b9;
+    color: white;
+  }
+  
+  .edit-btn {
+    background-color: #f39c12;
+  }
+  
+  .edit-btn:hover {
+    background-color: #e67e22;
+    color: white;
+  }
+  
+  .delete-btn {
+    background-color: #e74c3c;
+  }
+  
+  .delete-btn:hover {
+    background-color: #c0392b;
+    color: white;
+  }
+  
+  .vehicle-action-form {
+    margin: 0;
+    flex: 1;
+    display: flex;
+  }
+  
+  /* Documento botones y vistas */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--success-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(46, 204, 113, 0.2);
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+    color: white;
+  }
+  
+  .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 15px;
+  }
+  
+  .document-item {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative;
+    transition: all 0.2s;
+  }
+  
+  .document-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+  
+  .document-left-border {
+    width: 5px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  
+  .receipt-border { background-color: #3498db; }
+  .warranty-border { background-color: #2ecc71; }
+  .invoice-border { background-color: #f39c12; }
+  .other-border { background-color: #9b59b6; }
+  
+  .document-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(52, 152, 219, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+  }
+  
+  .document-info {
+    flex-grow: 1;
+    padding: 10px 0;
+    overflow: hidden;
+  }
+  
+  .document-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 5px;
+    color: var(--dark-color);
+  }
+  
+  .document-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+  
+  .doc-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .receipt { background-color: rgba(52, 152, 219, 0.1); color: #3498db; }
+  .warranty { background-color: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+  .invoice { background-color: rgba(243, 156, 18, 0.1); color: #f39c12; }
+  .certificate { background-color: rgba(155, 89, 182, 0.1); color: #9b59b6; }
+  .other { background-color: rgba(108, 117, 125, 0.1); color: #6c757d; }
+  
+  .document-description {
+    font-size: 0.85rem;
+    margin-top: 5px;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  
+  .document-actions {
+    display: flex;
+    padding: 0 10px;
+  }
+  
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: none;
+    margin: 0 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+  }
+  
+  .btn-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .notes-box {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    color: #495057;
+  }
+</style>
 
 <%- include('../partials/footer') %> 

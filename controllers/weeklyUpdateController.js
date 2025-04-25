@@ -1,4 +1,5 @@
 const Vehicle = require('../models/vehicle');
+const Maintenance = require('../models/maintenance');
 const fs = require('fs');
 const path = require('path');
 
@@ -30,6 +31,11 @@ const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
     return services;
   }
 
+  // Obtener todos los mantenimientos completados para este vehículo
+  const allMaintenances = Maintenance.findByVehicleId(vehicle.id)
+    .filter(m => m.status === 'completed')
+    .sort((a, b) => parseInt(b.mileage) - parseInt(a.mileage));
+
   // Filtrar reglas activas que aplican a este vehículo
   const applicableRules = rules.filter(rule => 
     rule.isActive && 
@@ -48,16 +54,34 @@ const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
       ? rule.conditionValue.mileage 
       : rule.conditionValue;
 
-    // Verificar si el kilometraje actual excede o está cerca del umbral para mantenimiento
-    const lastMaintenanceMileage = 0; // Esto se podría obtener del último mantenimiento
-    const mileageSinceLastService = currentMileage - lastMaintenanceMileage;
+    // Buscar el último mantenimiento completado para este tipo de servicio
+    const lastMaintenance = allMaintenances.find(m => m.maintenanceType === rule.serviceType);
+    
+    // Si no hay mantenimiento previo o el kilometraje actual es mayor que el último mantenimiento
+    if (!lastMaintenance || currentMileage < parseInt(lastMaintenance.mileage)) {
+      console.log(`[${new Date().toISOString()}] No hay mantenimiento previo o datos inválidos para ${vehicle.id}, servicio ${rule.serviceType}`);
+      continue;
+    }
+    
+    // Obtener el kilometraje del último mantenimiento
+    const lastMaintenanceMileage = parseInt(lastMaintenance.mileage);
+    
+    // Calcular cuándo será necesario el próximo servicio
+    const nextServiceDueMileage = lastMaintenanceMileage + mileageThreshold;
+    
+    // Calcular la distancia hasta el próximo servicio
+    const mileageUntilNextService = nextServiceDueMileage - currentMileage;
     
     // Buscamos el servicio para mostrar el nombre
     const serviceType = serviceTypes.find(s => s.id === rule.serviceType);
     const serviceName = serviceType ? serviceType.name : rule.serviceType;
 
-    // Si el kilometraje actual supera el umbral o está a menos del 10% del umbral
-    if (mileageSinceLastService >= mileageThreshold) {
+    console.log(`[${new Date().toISOString()}] Verificando regla: ${rule.name} para vehículo: ${vehicle.id}`);
+    console.log(`Kilometraje actual: ${currentMileage}, Último mantenimiento: ${lastMaintenanceMileage}`);
+    console.log(`Próximo servicio a: ${nextServiceDueMileage}, Faltan: ${mileageUntilNextService}, Umbral: ${mileageThreshold}`);
+
+    // Si ya se alcanzó o superó el kilometraje para el próximo servicio
+    if (mileageUntilNextService <= 0) {
       services.push({
         ruleId: rule.id,
         ruleName: rule.name,
@@ -65,11 +89,16 @@ const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
         serviceName: serviceName,
         mileageThreshold: mileageThreshold,
         currentMileage: currentMileage,
-        mileageSinceLastService: mileageSinceLastService,
+        lastMaintenanceMileage: lastMaintenanceMileage,
+        nextServiceDueMileage: nextServiceDueMileage,
+        mileageUntilNextService: mileageUntilNextService,
         status: 'needed',
         priority: rule.priority
       });
-    } else if (mileageSinceLastService >= mileageThreshold * 0.9) {
+      console.log(`Servicio NECESARIO: ${serviceName}, próximo a: ${nextServiceDueMileage}`);
+    } 
+    // Si está próximo (dentro del 10% del umbral)
+    else if (mileageUntilNextService <= mileageThreshold * 0.1) {
       services.push({
         ruleId: rule.id,
         ruleName: rule.name,
@@ -77,10 +106,15 @@ const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
         serviceName: serviceName,
         mileageThreshold: mileageThreshold,
         currentMileage: currentMileage,
-        mileageSinceLastService: mileageSinceLastService,
+        lastMaintenanceMileage: lastMaintenanceMileage,
+        nextServiceDueMileage: nextServiceDueMileage,
+        mileageUntilNextService: mileageUntilNextService,
         status: 'upcoming',
         priority: rule.priority
       });
+      console.log(`Servicio PRÓXIMO: ${serviceName}, próximo a: ${nextServiceDueMileage}`);
+    } else {
+      console.log(`Servicio NO NECESARIO: ${serviceName}, próximo a: ${nextServiceDueMileage}`);
     }
   }
 
