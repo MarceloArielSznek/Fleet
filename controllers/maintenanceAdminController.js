@@ -334,7 +334,7 @@ exports.deleteCustomService = (req, res, next) => {
 // Mostrar formulario para crear una nueva regla
 exports.getCreateRuleForm = (req, res, next) => {
   try {
-    const customServices = readJsonFile(customServicesDataPath);
+    const customServices = readJsonFile(serviceTypesDataPath);
     const vehicles = readJsonFile(vehiclesDataPath);
     
     console.log(`[${new Date().toISOString()}] Cargando formulario para crear nueva regla de mantenimiento`);
@@ -408,7 +408,7 @@ exports.getEditRuleForm = (req, res, next) => {
   try {
     const ruleId = req.params.id;
     const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
-    const customServices = readJsonFile(customServicesDataPath);
+    const customServices = readJsonFile(serviceTypesDataPath);
     const vehicles = readJsonFile(vehiclesDataPath);
     
     // Buscar la regla por ID

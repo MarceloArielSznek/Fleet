@@ -117,18 +117,18 @@
             <div class="vehicle-name-display"><%= vehicle.brand %> <%= vehicle.model %></div>
             <div class="vehicle-info">
               <span><i class="fas fa-calendar-alt"></i> <%= vehicle.year %></span>
-              <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> km</span>
+              <span><i class="fas fa-road"></i> <%= vehicle.mileage.toLocaleString() %> miles</span>
             </div>
             <div class="vehicle-plate"><%= vehicle.plate %></div>
             <div class="vehicle-card-actions">
-              <a href="/vehicles/<%= vehicle.id %>" class="btn btn-sm btn-primary">
+              <a href="/vehicles/<%= vehicle.id %>" class="vehicle-action-btn view-btn">
                 <i class="fas fa-eye"></i> View
               </a>
-              <a href="/vehicles/<%= vehicle.id %>/edit" class="btn btn-sm btn-warning">
+              <a href="/vehicles/<%= vehicle.id %>/edit" class="vehicle-action-btn edit-btn">
                 <i class="fas fa-edit"></i> Edit
               </a>
-              <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" style="display: inline;">
-                <button type="submit" class="btn btn-sm btn-danger" 
+              <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" class="vehicle-action-form">
+                <button type="submit" class="vehicle-action-btn delete-btn" 
                         onclick="return confirm('Are you sure you want to delete this vehicle?')">
                   <i class="fas fa-trash"></i> Delete
                 </button>
@@ -282,20 +282,66 @@
   
   .vehicle-card-actions {
     display: flex;
-    gap: 8px;
     margin-top: 15px;
-    flex-wrap: wrap;
+    gap: 10px;
   }
   
-  .vehicle-card-actions .btn {
+  .vehicle-action-btn {
     flex: 1;
-    min-width: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    font-size: 0.8rem;
-    padding: 4px 8px;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 8px 0;
+    text-align: center;
+    border-radius: 4px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .vehicle-action-form {
+    flex: 1;
+    display: flex;
+  }
+  
+  .view-btn {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .view-btn:hover {
+    background-color: #2980b9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    color: white;
+  }
+  
+  .edit-btn {
+    background-color: #f39c12;
+    color: white;
+  }
+  
+  .edit-btn:hover {
+    background-color: #d35400;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    color: white;
+  }
+  
+  .delete-btn {
+    background-color: #e74c3c;
+    color: white;
+    width: 100%;
+  }
+  
+  .delete-btn:hover {
+    background-color: #c0392b;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
   }
   
   @media (max-width: 768px) {

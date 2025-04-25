@@ -124,11 +124,11 @@
                 </td>
                 <td>
                   <% if (rule.conditionType === 'mileage') { %>
-                    Every <%= rule.conditionValue.toLocaleString() %> km
+                    Every <%= rule.conditionValue.toLocaleString() %> miles
                   <% } else if (rule.conditionType === 'time') { %>
                     Every <%= rule.conditionValue %> days
                   <% } else if (rule.conditionType === 'combined') { %>
-                    Every <%= rule.conditionValue.mileage.toLocaleString() %> km or <%= rule.conditionValue.time %> days
+                    Every <%= rule.conditionValue.mileage.toLocaleString() %> miles or <%= rule.conditionValue.time %> days
                   <% } else { %>
                     <%= rule.conditionType %>: <%= rule.conditionValue %>
                   <% } %>
@@ -183,7 +183,7 @@
   <div class="card-body">
     <p>Maintenance rules help you automate vehicle maintenance schedules based on criteria like:</p>
     <ul>
-      <li><strong>Mileage-based:</strong> Schedule maintenance after a specific number of kilometers</li>
+      <li><strong>Mileage-based:</strong> Schedule maintenance after a specific number of miles</li>
       <li><strong>Time-based:</strong> Schedule maintenance after a specific number of days</li>
       <li><strong>Vehicle type-specific:</strong> Apply rules only to specific types of vehicles</li>
     </ul>

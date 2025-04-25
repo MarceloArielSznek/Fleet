@@ -21,7 +21,7 @@
           <select id="vehicleId" name="vehicleId" class="form-control" required>
             <option value="">Select a Vehicle</option>
             <% vehicles.forEach(vehicle => { %>
-              <option value="<%= vehicle.id %>" <%= preselectedVehicleId && preselectedVehicleId === vehicle.id ? 'selected' : '' %>>
+              <option value="<%= vehicle.id %>" data-mileage="<%= vehicle.mileage %>" <%= preselectedVehicleId && preselectedVehicleId === vehicle.id ? 'selected' : '' %>>
                 <%= vehicle.plate %> - <%= vehicle.brand %> <%= vehicle.model %>
               </option>
             <% }) %>
@@ -34,7 +34,7 @@
             <option value="">Select Maintenance Type</option>
             <% if (serviceTypes && serviceTypes.length > 0) { %>
               <% serviceTypes.forEach(serviceType => { %>
-                <option value="<%= serviceType.id %>"><%= serviceType.name %></option>
+                <option value="<%= serviceType.id %>" <%= preselectedServiceType && preselectedServiceType === serviceType.id ? 'selected' : '' %>><%= serviceType.name %></option>
               <% }); %>
             <% } else { %>
               <!-- Opciones de respaldo en caso de que no haya servicios disponibles -->
@@ -90,7 +90,7 @@
         
         <div class="form-group form-col">
           <label for="mileage" class="form-label">Current Mileage</label>
-          <input type="number" id="mileage" name="mileage" min="0" class="form-control">
+          <input type="number" id="mileage" name="mileage" min="0" class="form-control" value="<%= preselectedMileage || '' %>">
         </div>
       </div>
       
@@ -137,6 +137,46 @@
   document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('scheduleDate').value = today;
+    
+    // Actualizar kilometraje automáticamente cuando se selecciona un vehículo
+    const vehicleSelect = document.getElementById('vehicleId');
+    const mileageInput = document.getElementById('mileage');
+    
+    console.log('Inicializando script de actualización de kilometraje');
+    
+    // Función para actualizar el kilometraje
+    function updateMileage() {
+      const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+      
+      if (selectedOption && selectedOption.value) {
+        const mileage = selectedOption.getAttribute('data-mileage');
+        console.log('Vehículo seleccionado:', selectedOption.value);
+        console.log('Kilometraje para este vehículo:', mileage);
+        
+        if (mileage) {
+          mileageInput.value = mileage;
+          console.log('Kilometraje actualizado a:', mileageInput.value);
+        } else {
+          mileageInput.value = '';
+          console.log('Campo de kilometraje limpiado (no se encontró kilometraje)');
+        }
+      } else {
+        mileageInput.value = '';
+        console.log('Campo de kilometraje limpiado (no hay vehículo seleccionado)');
+      }
+    }
+    
+    // Evento para detectar cambios en la selección del vehículo
+    vehicleSelect.addEventListener('change', function() {
+      console.log('Evento change detectado en el selector de vehículos');
+      updateMileage();
+    });
+    
+    // Actualizar al cargar la página (para el caso de vehículo preseleccionado)
+    if (vehicleSelect.value) {
+      console.log('Vehículo preseleccionado detectado:', vehicleSelect.value);
+      updateMileage();
+    }
   });
 </script>
 
