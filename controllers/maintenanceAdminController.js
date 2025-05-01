@@ -149,6 +149,8 @@ exports.getCreateServiceForm = (req, res, next) => {
 exports.createCustomService = (req, res, next) => {
   try {
     const serviceTypes = readJsonFile(serviceTypesDataPath);
+    const vehicles = readJsonFile(vehiclesDataPath);
+    const maintenanceHistory = readJsonFile(path.join(__dirname, '../data/maintenance-history.json'), []);
     
     // Verificar si ya existe un servicio en serviceTypes con el mismo ID
     if (serviceTypes.some(service => service.id === req.body.id)) {
@@ -183,6 +185,31 @@ exports.createCustomService = (req, res, next) => {
     
     // Guardar la lista actualizada
     writeJsonFile(serviceTypesDataPath, serviceTypes);
+    
+    // If the service type is applicable to vans, create initial maintenance records for all vans
+    if (vehicleTypes.includes('van')) {
+      const currentDate = new Date().toISOString();
+      const vans = vehicles.filter(vehicle => vehicle.type === 'van' && vehicle.status === 'active');
+      
+      vans.forEach(van => {
+        const maintenanceRecord = {
+          id: `maint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          vehicleId: van.id,
+          maintenanceType: newServiceType.id,
+          mileage: van.mileage || "0",
+          date: currentDate,
+          status: "completed",
+          notes: `Initial ${newServiceType.name} record`,
+          createdAt: currentDate,
+          updatedAt: currentDate
+        };
+        
+        maintenanceHistory.push(maintenanceRecord);
+      });
+      
+      // Save the updated maintenance history
+      writeJsonFile(path.join(__dirname, '../data/maintenance-history.json'), maintenanceHistory);
+    }
     
     console.log(`[${new Date().toISOString()}] Servicio personalizado CREADO - ID: ${newServiceType.id}, Nombre: ${newServiceType.name}`);
     

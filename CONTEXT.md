@@ -82,6 +82,36 @@ Fleet/
 
 ## Cambios Recientes Realizados
 
+### Modernización Completa de la Interfaz de Usuario
+- Implementación de un diseño moderno y coherente en todas las vistas principales
+- Uso de tarjetas con cabeceras celestes para una mejor organización visual
+- Estandarización de botones, elementos de formulario y componentes de interacción
+- Mejora general de la experiencia de usuario con efectos visuales sutiles
+
+### Rediseño de Navegación y Estructura
+- Renovación completa de la barra de navegación con diseño moderno
+- Implementación de header y sidebar consistentes en toda la aplicación
+- Reorganización de elementos para optimizar el espacio y mejorar la usabilidad
+- Estados vacíos mejorados con iconos y mensajes descriptivos
+
+### Mejoras en las Vistas de Vehículos
+- Rediseño completo de las tarjetas de vehículos con animaciones y efectos hover
+- Vista de detalles mejorada con secciones claramente definidas
+- Formularios de creación y edición con estructura moderna y validaciones
+- Alternancia entre vistas de tabla y tarjetas con preferencia guardada
+
+### Optimización de las Vistas de Mantenimiento
+- Rediseño completo de la página de índice con filtros mejorados
+- Modernización de los formularios de creación y edición de mantenimientos
+- Vista de detalles renovada con secciones para documentos y notas
+- Interfaz de carga de documentos mejorada con previsualización de archivos
+
+### Mejoras en la Gestión de Documentos
+- Nueva interfaz para la visualización y administración de documentos
+- Diseño moderno para la carga de archivos con previsualización
+- Categorización visual de documentos con colores e iconos según su tipo
+- Mejora en la presentación del listado de documentos con metadatos relevantes
+
 ### Rediseño de Tarjetas de Vehículos
 - Implementación de un nuevo diseño para las tarjetas de vehículos en el carrusel de la página principal
 - Mejora en la presentación de información (estado, placa, marca, modelo)
@@ -112,6 +142,18 @@ Fleet/
 - Ajustes de estilos para mejorar la adaptación a diferentes tamaños de pantalla
 
 ## Próximas Mejoras Planeadas
+
+### Modernización de Weekly Update
+- Renovación de la interfaz de actualización semanal siguiendo el nuevo diseño
+- Mejora en la presentación de alertas y notificaciones de mantenimiento
+- Optimización del flujo de trabajo para actualización de múltiples vehículos
+- Implementación de confirmaciones visuales para las acciones realizadas
+
+### Modernización de Maintenance Admin
+- Actualización de la interfaz de administración de mantenimiento con el diseño moderno
+- Mejora de los formularios de creación y edición de reglas de mantenimiento
+- Optimización de la visualización y gestión de tipos de servicio
+- Implementación de confirmaciones visuales para acciones administrativas
 
 ### Módulo de Conductores
 - Implementación completa del módulo de gestión de conductores

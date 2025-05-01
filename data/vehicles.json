@@ -6,14 +6,14 @@
     "model": "Transit",
     "year": "2022",
     "type": "van",
-    "status": "retired",
+    "status": "active",
     "lastMaintenance": "2025-04-23",
     "driver": "John Smith",
     "fuelType": "gasoline",
-    "mileage": "0",
+    "mileage": "8000",
     "image": "/images/vehicles/vehicle-1745291880478-578535456.avif",
     "createdAt": "2025-04-21T13:46:07.434Z",
-    "updatedAt": "2025-04-25T03:17:14.404Z",
+    "updatedAt": "2025-04-30T04:17:38.394Z",
     "vin": "3VWED21C82M443315",
     "name": "GT3"
   },
@@ -80,13 +80,13 @@
     "year": "2019",
     "type": "van",
     "status": "active",
-    "lastMaintenance": "2025-05-01",
+    "lastMaintenance": "2025-04-26",
     "driver": "Max",
     "fuelType": "gasoline",
-    "mileage": "16000",
+    "mileage": "25000",
     "image": "/images/vehicles/vehicle-1745265391671-993767875.avif",
     "vin": "WDDGF54XX8F005142",
     "createdAt": "2025-04-21T19:56:31.674Z",
-    "updatedAt": "2025-04-25T05:53:51.526Z"
+    "updatedAt": "2025-04-30T04:03:58.822Z"
   }
 ]

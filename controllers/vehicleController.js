@@ -98,6 +98,34 @@ exports.createVehicle = (req, res, next) => {
     const newVehicle = new Vehicle(vehicleData);
     newVehicle.save();
     
+    // If the vehicle is a van, create initial maintenance records for all service types
+    if (newVehicle.type === 'van') {
+      const serviceTypes = readJsonFile(serviceTypesDataPath, []);
+      const currentDate = new Date().toISOString();
+      
+      serviceTypes.forEach(serviceType => {
+        const maintenanceRecord = {
+          id: `maint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          vehicleId: newVehicle.id,
+          maintenanceType: serviceType.id,
+          mileage: "0",
+          date: currentDate,
+          status: "completed",
+          notes: `Initial ${serviceType.name} record`,
+          createdAt: currentDate,
+          updatedAt: currentDate
+        };
+        
+        // Add the maintenance record to the history
+        const maintenanceHistory = readJsonFile(path.join(__dirname, '../data/maintenance-history.json'), []);
+        maintenanceHistory.push(maintenanceRecord);
+        fs.writeFileSync(
+          path.join(__dirname, '../data/maintenance-history.json'),
+          JSON.stringify(maintenanceHistory, null, 2)
+        );
+      });
+    }
+    
     console.log(`[${new Date().toISOString()}] Vehículo CREADO - ID: ${newVehicle.id}, Marca: ${newVehicle.brand}, Modelo: ${newVehicle.model}`);
     console.table({
       Operación: 'CREAR',

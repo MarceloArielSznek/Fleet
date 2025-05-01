@@ -1,0 +1,178 @@
+[
+  {
+    "id": "1745551819425",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "oil_change",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial oil change record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819426",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "tire_rotation",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial tire rotation record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819427",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "brake_service",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial brake service record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819428",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "engine_tuning",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial engine tuning record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819429",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "battery_replacement",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial battery replacement record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819430",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "air_filter",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial air filter replacement record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819431",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "general_inspection",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial general inspection record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819432",
+    "vehicleId": "1745243167434",
+    "maintenanceType": "tr_fluid",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial transmission fluid record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819433",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "oil_change",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial oil change record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819434",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "tire_rotation",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial tire rotation record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819435",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "brake_service",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial brake service record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819436",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "engine_tuning",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial engine tuning record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819437",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "battery_replacement",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial battery replacement record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819438",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "air_filter",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial air filter replacement record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819439",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "general_inspection",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial general inspection record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  },
+  {
+    "id": "1745551819440",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "tr_fluid",
+    "mileage": "0",
+    "date": "2025-04-25T03:30:19.424Z",
+    "status": "completed",
+    "notes": "Initial transmission fluid record",
+    "createdAt": "2025-04-25T03:30:19.424Z",
+    "updatedAt": "2025-04-25T03:30:19.424Z"
+  }
+] 

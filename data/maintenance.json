@@ -118,5 +118,22 @@
     "documents": [],
     "createdAt": "2025-04-25T05:17:05.584Z",
     "updatedAt": "2025-04-25T05:17:05.584Z"
+  },
+  {
+    "id": "1745638294577",
+    "vehicleId": "1745265391674",
+    "maintenanceType": "oil_change",
+    "status": "completed",
+    "scheduleDate": "2025-04-26",
+    "completionDate": "2025-04-26",
+    "cost": "",
+    "serviceProvider": "",
+    "serviceLocation": "",
+    "mileage": 19000,
+    "notes": "",
+    "partsReplaced": "",
+    "documents": [],
+    "createdAt": "2025-04-26T03:31:34.577Z",
+    "updatedAt": "2025-04-26T03:31:47.403Z"
   }
 ]
