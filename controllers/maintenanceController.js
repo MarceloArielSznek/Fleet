@@ -209,6 +209,20 @@ exports.updateMaintenanceRecord = (req, res, next) => {
       maintenanceData.completionDate = new Date().toISOString().split('T')[0];
     }
     
+    // Si el estado es completed, actualizar el kilometraje del vehículo si es mayor al actual
+    if (maintenanceData.mileage) {
+      const vehicle = Vehicle.findById(maintenanceData.vehicleId);
+      if (vehicle && parseInt(maintenanceData.mileage) > parseInt(vehicle.mileage)) {
+        vehicle.mileage = maintenanceData.mileage;
+        Vehicle.findByIdAndUpdate(vehicle.id, vehicle);
+      } else if (vehicle && parseInt(maintenanceData.mileage) < parseInt(vehicle.mileage)) {
+        return res.status(400).render('error', {
+          error: null,
+          message: 'Mileage cannot be lower than the current vehicle mileage'
+        });
+      }
+    }
+    
     const updatedMaintenance = Maintenance.findByIdAndUpdate(maintenanceId, maintenanceData);
     
     console.log(`[${new Date().toISOString()}] Mantenimiento ACTUALIZADO - ID: ${updatedMaintenance.id}`);

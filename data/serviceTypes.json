@@ -82,5 +82,21 @@
     "active": true,
     "createdAt": "2025-04-22T03:10:22.205Z",
     "updatedAt": "2025-04-23T03:43:23.092Z"
+  },
+  {
+    "id": "spark_plugs",
+    "name": "Spark plugs",
+    "code": "spark_plugs",
+    "description": "",
+    "category": "routine",
+    "vehicleTypes": [
+      "car",
+      "truck",
+      "van"
+    ],
+    "isSystemDefault": false,
+    "active": true,
+    "createdAt": "2025-05-02T04:05:47.447Z",
+    "updatedAt": "2025-05-02T04:05:47.447Z"
   }
 ]

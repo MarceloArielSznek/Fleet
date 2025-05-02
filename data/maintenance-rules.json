@@ -1,18 +1,1 @@
-[
-  {
-    "id": "1745551819424",
-    "name": "Standard oil change",
-    "serviceType": "oil_change",
-    "conditionType": "mileage",
-    "conditionValue": 3000,
-    "priority": "high",
-    "vehicleIds": [
-      "1745243167434",
-      "1745265391674"
-    ],
-    "description": "",
-    "isActive": true,
-    "createdAt": "2025-04-25T03:30:19.424Z",
-    "updatedAt": "2025-04-30T04:04:10.582Z"
-  }
-]
+[]

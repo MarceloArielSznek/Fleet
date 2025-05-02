@@ -1,7 +1,7 @@
 <%- include('../partials/header') %>
 
 <div class="page-header">
-  <h2>Weekly Mileage Update</h2>
+  <h2><i class="fas fa-road"></i> Weekly Mileage Update</h2>
   <div class="page-actions">
     <button id="updateAllBtn" class="btn btn-success">
       <i class="fas fa-save"></i> Save All Updates
@@ -10,10 +10,7 @@
 </div>
 
 <% if (vehicles && vehicles.length > 0) { %>
-  <!-- Quick filter -->
-
-
-  <!-- Vehicle cards in a grid layout like in vehicles/index.ejs -->
+  <!-- Vehicle cards in a grid layout -->
   <div class="vehicles-grid">
     <% vehicles.forEach(vehicle => { %>
       <div class="vehicle-card" data-vehicle-id="<%= vehicle.id %>" data-vehicle-name="<%= vehicle.name || vehicle.brand + ' ' + vehicle.model %>" data-vehicle-plate="<%= vehicle.plate %>" data-vehicle-brand="<%= vehicle.brand %>" data-vehicle-model="<%= vehicle.model %>">
@@ -42,6 +39,9 @@
           </div>
           
           <div class="vehicle-data">
+            <div class="vehicle-brand-model">
+              <i class="fas fa-car"></i> <%= vehicle.brand %> <%= vehicle.model %>
+            </div>
             <div class="vehicle-year">
               <i class="fas fa-calendar-alt"></i> <%= vehicle.year %>
             </div>
@@ -63,36 +63,36 @@
                 value="<%= vehicle.mileage %>" 
                 placeholder="Enter new mileage" 
                 data-current="<%= vehicle.mileage %>"
+                onblur="if(this.value < <%= vehicle.mileage %>) this.value = <%= vehicle.mileage %>"
               >
-              <button class="update-btn" data-vehicle-id="<%= vehicle.id %>">Update</button>
+              <button class="update-btn">Update</button>
             </div>
             <div class="update-status" style="display: none;"></div>
           </div>
           
-          <!-- Maintenance indicators (only shown if there are services) -->
+          <!-- Maintenance indicators -->
           <% if (vehicle.services && vehicle.services.length > 0) { %>
             <div class="maintenance-indicator">
-              <a href="#" class="maintenance-toggle" data-bs-toggle="collapse" data-bs-target="#services-<%= vehicle.id %>">
-                <i class="fas fa-exclamation-triangle text-warning"></i> 
-                <span class="maintenance-count"><%= vehicle.services.length %> service<%= vehicle.services.length > 1 ? 's' : '' %> needed</span>
-                <i class="fas fa-chevron-down"></i>
-              </a>
+              <div class="service-header">
+                <div class="service-count">
+                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                  <span><%= vehicle.services.length %> service<%= vehicle.services.length > 1 ? 's' : '' %> needed</span>
+                </div>
+                <button class="toggle-btn" data-bs-toggle="collapse" data-bs-target="#services-<%= vehicle.id %>">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+              </div>
               <div id="services-<%= vehicle.id %>" class="collapse">
-                <ul class="services-list">
-                  <% vehicle.services.forEach(service => { %>
-                    <li class="service-item <%= service.status === 'needed' ? 'needed' : 'upcoming' %>">
-                      <div class="service-header">
-                        <span class="service-name"><%= service.serviceName %></span>
-                        <span class="service-priority <%= service.priority %>-priority">
-                          <%= service.priority.charAt(0).toUpperCase() + service.priority.slice(1) %>
-                        </span>
-                      </div>
-                      <div class="service-details">
-                        Threshold: <%= service.mileageThreshold.toLocaleString() %> miles
-                      </div>
-                    </li>
-                  <% }); %>
-                </ul>
+                <% vehicle.services.forEach(service => { %>
+                  <div class="service-item">
+                    <div class="service-info">
+                      <div class="service-name"><%= service.serviceName %></div>
+                      <span class="priority-badge priority-<%= service.priority %>">
+                        <%= service.priority %>
+                      </span>
+                    </div>
+                  </div>
+                <% }); %>
               </div>
             </div>
           <% } else { %>
@@ -101,27 +101,12 @@
             </div>
           <% } %>
         </div>
-        
-        <div class="vehicle-card-actions">
-          <a href="/vehicles/<%= vehicle.id %>" class="vehicle-action-btn view-btn">
-            <i class="fas fa-eye"></i> View
-          </a>
-          <% if (vehicle.services && vehicle.services.length > 0) { %>
-            <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&serviceType=<%= vehicle.services[0].serviceType %>&mileage=<%= vehicle.mileage %>" class="vehicle-action-btn schedule-btn <%= vehicle.services[0].status === 'needed' ? 'needed' : 'upcoming' %> <%= vehicle.services[0].priority %>-priority">
-              <i class="fas fa-tools"></i> Schedule <%= vehicle.services[0].serviceName %>
-            </a>
-          <% } else { %>
-            <a href="/maintenance/create?vehicleId=<%= vehicle.id %>&mileage=<%= vehicle.mileage %>" class="vehicle-action-btn schedule-btn">
-              <i class="fas fa-tools"></i> Schedule
-            </a>
-          <% } %>
-        </div>
       </div>
     <% }); %>
   </div>
 
   <!-- Maintenance Summary Table -->
-  <div class="card mt-5 services-summary-card">
+  <div class="card mt-5">
     <div class="card-header maintenance-summary-header">
       <h3>Maintenance Summary</h3>
     </div>
@@ -130,13 +115,13 @@
         <table class="table" id="servicesTable">
           <thead>
             <tr>
-              <th>Vehicle</th>
-              <th>Plate</th>
+              <th>Name</th>
+              <th>License Plate</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Year</th>
               <th>Service</th>
-              <th>Status</th>
               <th>Priority</th>
-              <th>Current Mileage</th>
-              <th>Threshold</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -154,17 +139,9 @@
               }
             });
             
-            // Sort by priority and status (needed first)
+            // Sort by priority (high first)
             allServices.sort((a, b) => {
               const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
-              const statusOrder = { 'needed': 0, 'upcoming': 1 };
-              
-              // First by status
-              if (statusOrder[a.service.status] !== statusOrder[b.service.status]) {
-                return statusOrder[a.service.status] - statusOrder[b.service.status];
-              }
-              
-              // Then by priority
               return priorityOrder[a.service.priority] - priorityOrder[b.service.priority];
             });
             %>
@@ -172,31 +149,24 @@
             <% if (allServices.length > 0) { %>
               <% allServices.forEach(item => { %>
                 <tr>
+                  <td><%= item.vehicle.name || '-' %></td>
                   <td>
-                    <% if (item.vehicle.name) { %>
-                      <strong><%= item.vehicle.name %></strong><br>
-                      <small class="text-muted"><%= item.vehicle.brand %> <%= item.vehicle.model %></small>
-                    <% } else { %>
-                      <strong><%= item.vehicle.brand %> <%= item.vehicle.model %></strong>
-                    <% } %>
+                    <div class="plate-tag"><%= item.vehicle.plate %></div>
                   </td>
-                  <td><div class="plate-tag"><%= item.vehicle.plate %></div></td>
+                  <td><%= item.vehicle.brand %></td>
+                  <td><%= item.vehicle.model %></td>
+                  <td><%= item.vehicle.year %></td>
                   <td><%= item.service.serviceName %></td>
                   <td>
-                    <span class="badge <%= item.service.status === 'needed' ? 'bg-warning' : 'bg-info' %>">
-                      <%= item.service.status === 'needed' ? 'Needed' : 'Upcoming' %>
+                    <span class="priority-badge priority-<%= item.service.priority %>">
+                      <%= item.service.priority %>
                     </span>
                   </td>
-                  <td>
-                    <span class="badge <%= item.service.priority === 'high' ? 'bg-danger' : item.service.priority === 'medium' ? 'bg-primary' : 'bg-secondary' %>">
-                      <%= item.service.priority.charAt(0).toUpperCase() + item.service.priority.slice(1) %>
-                    </span>
-                  </td>
-                  <td><%= parseInt(item.vehicle.mileage).toLocaleString() %> miles</td>
-                  <td><%= item.service.mileageThreshold.toLocaleString() %> miles</td>
-                  <td>
-                    <a href="/maintenance/create?vehicleId=<%= item.vehicle.id %>&serviceType=<%= item.service.serviceType %>&mileage=<%= item.vehicle.mileage %>" class="schedule-action-btn">
-                      <i class="fas fa-calendar-plus"></i> Schedule
+                  <td class="action-cell">
+                    <a href="/maintenance/create?vehicleId=<%= item.vehicle.id %>&serviceType=<%= item.service.serviceType %>&mileage=<%= item.vehicle.mileage %>" 
+                       class="schedule-btn">
+                      <i class="fas fa-calendar-plus"></i>
+                      <span>Schedule</span>
                     </a>
                   </td>
                 </tr>
@@ -204,7 +174,11 @@
             <% } else { %>
               <tr>
                 <td colspan="8" class="text-center">
-                  <p class="text-success mt-3 mb-3"><i class="fas fa-check-circle"></i> No maintenance services required at this time.</p>
+                  <div class="empty-state">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <h4>No Maintenance Required</h4>
+                    <p>All vehicles are up to date with their maintenance schedules.</p>
+                  </div>
                 </td>
               </tr>
             <% } %>
@@ -214,13 +188,10 @@
     </div>
   </div>
 <% } else { %>
-  <div class="card">
-    <div class="card-body text-center">
-      <p>No active vehicles found.</p>
-      <a href="/vehicles/create" class="btn btn-primary mt-2">
-        <i class="fas fa-plus-circle"></i> Register Vehicle
-      </a>
-    </div>
+  <div class="empty-state">
+    <i class="fas fa-car text-muted"></i>
+    <h4>No Vehicles Found</h4>
+    <p>There are no vehicles available for mileage update.</p>
   </div>
 <% } %>
 
@@ -230,8 +201,8 @@
     const updateButtons = document.querySelectorAll('.update-btn');
     updateButtons.forEach(button => {
       button.addEventListener('click', async function() {
-        const vehicleId = this.dataset.vehicleId;
-        const card = document.querySelector(`.vehicle-card[data-vehicle-id="${vehicleId}"]`);
+        const card = this.closest('.vehicle-card');
+        const vehicleId = card.dataset.vehicleId;
         const mileageInput = card.querySelector('.mileage-input');
         const statusElement = card.querySelector('.update-status');
         const newMileage = parseInt(mileageInput.value);
@@ -491,26 +462,16 @@
     margin-top: 2px;
   }
   
-  .vehicle-plate {
-    background: #34495e;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: inline-block;
-    margin-left: 10px;
-  }
-  
   .vehicle-data {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
     margin-bottom: 12px;
     color: #7f8c8d;
     font-size: 0.85rem;
   }
   
-  .vehicle-year, .vehicle-current-mileage {
+  .vehicle-brand-model, .vehicle-year, .vehicle-current-mileage {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -518,128 +479,150 @@
   
   /* Mileage update form */
   .mileage-update-container {
-    margin: 12px 0;
-    padding: 10px;
+    margin: 15px 0;
+    padding: 15px;
     background-color: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    border-radius: 8px;
   }
   
   .mileage-update-container label {
-    font-size: 0.85rem;
+    display: block;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #495057;
-    margin-bottom: 5px;
-    display: block;
+    margin-bottom: 8px;
   }
   
   .mileage-input-group {
     display: flex;
-    gap: 5px;
+    gap: 8px;
   }
   
   .mileage-input {
     flex: 1;
-    border: 1px solid #ddd;
-    padding: 8px 10px;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
     font-size: 0.9rem;
-    border-radius: 4px;
+    color: #495057;
+    transition: all 0.2s;
+  }
+  
+  .mileage-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
   }
   
   .update-btn {
-    background-color: #3498db;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
+    transition: all 0.2s;
   }
   
   .update-btn:hover {
     background-color: #2980b9;
+    transform: translateY(-1px);
   }
   
   /* Maintenance indicators */
   .maintenance-indicator {
-    margin-top: auto;
-    padding-top: 10px;
-  }
-  
-  .maintenance-toggle {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #333;
-    text-decoration: none;
-    font-size: 0.85rem;
-  }
-  
-  .maintenance-toggle:hover {
-    color: #2980b9;
-  }
-  
-  .maintenance-count {
-    flex: 1;
-  }
-  
-  .services-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 0 0;
-  }
-  
-  .service-item {
-    padding: 8px 10px;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    border-left: 3px solid;
-    background-color: #f9f9f9;
-    font-size: 0.85rem;
-  }
-  
-  .service-item.needed {
-    border-left-color: #f39c12;
-  }
-  
-  .service-item.upcoming {
-    border-left-color: #3498db;
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
   }
   
   .service-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 3px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 0 12px;
+  }
+  
+  .service-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .service-count i {
+    color: #f39c12;
+  }
+  
+  .toggle-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.2s;
+  }
+  
+  .toggle-btn:hover {
+    color: var(--primary-color);
+  }
+  
+  .toggle-btn[aria-expanded="true"] i {
+    transform: rotate(180deg);
+  }
+  
+  .service-item {
+    padding: 12px 16px;
+    background-color: #fff;
+    border-radius: 6px;
+    margin: 0 12px 8px 12px;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+  }
+  
+  .service-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
   
   .service-name {
-    font-weight: 600;
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+    flex: 1;
   }
   
-  .service-priority {
+  .priority-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
     display: inline-block;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 0.7rem;
+  }
+  
+  .priority-badge.priority-high {
+    background-color: #dc3545;
     color: white;
   }
   
-  .high-priority {
-    background-color: #e74c3c;
-  }
-  
-  .medium-priority {
+  .priority-badge.priority-medium {
     background-color: #f39c12;
+    color: white;
   }
   
-  .low-priority {
-    background-color: #3498db;
-  }
-  
-  .service-details {
-    color: #7f8c8d;
-    font-size: 0.8rem;
+  .priority-badge.priority-low {
+    background-color: #28a745;
+    color: white;
   }
   
   /* Card actions */
@@ -680,50 +663,134 @@
   }
   
   /* Maintenance Summary Table Styles */
-  .services-summary-card {
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-  
   .maintenance-summary-header {
-    background-color: #3498db;
-    color: white;
+    background-color: var(--primary-color);
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
   }
   
   .maintenance-summary-header h3 {
+    color: white;
     margin: 0;
-    padding: 10px 0;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+
+  #servicesTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   }
   
+  #servicesTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--dark-color);
+    padding: 0.9rem 1.2rem;
+    vertical-align: middle;
+    border-bottom: 2px solid #eee;
+    font-size: 0.95rem;
+  }
+  
+  #servicesTable td {
+    padding: 1rem 1.2rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95rem;
+  }
+  
+  #servicesTable tr:last-child td {
+    border-bottom: none;
+  }
+  
+  #servicesTable tbody tr {
+    transition: all 0.2s;
+  }
+  
+  #servicesTable tbody tr:nth-child(even) {
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+  
+  #servicesTable tbody tr:hover {
+    background-color: transparent;
+  }
+
   /* Plate tag in table */
   .plate-tag {
     display: inline-block;
-    background: #34495e;
+    background-color: var(--secondary-color);
     color: white;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
   }
   
-  /* Schedule action button in table */
-  .schedule-action-btn {
+  /* Status badges */
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .status-active {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  .status-maintenance {
+    background-color: #f39c12;
+    color: white;
+  }
+  
+  .status-retired {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  /* Action buttons */
+  .action-cell {
+    white-space: nowrap;
+  }
+  
+  .btn-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    background-color: #2ecc71;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0 2px;
     text-decoration: none;
   }
   
-  .schedule-action-btn:hover {
-    background-color: #27ae60;
-    color: white;
+  .btn-icon:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+  }
+  
+  .text-primary {
+    color: var(--primary-color) !important;
+  }
+  
+  .text-warning {
+    color: var(--warning-color) !important;
+  }
+  
+  .text-success {
+    color: var(--success-color) !important;
   }
   
   @media (max-width: 768px) {
@@ -766,6 +833,157 @@
   .schedule-btn.upcoming.low-priority {
     background-color: #6c757d;
     color: white;
+  }
+
+  /* Badge styles in table */
+  .badge {
+    font-size: 0.95rem;
+    padding: 6px 10px;
+  }
+
+  /* Vehicle name in table */
+  .vehicle-name {
+    font-size: 1rem;
+  }
+
+  .vehicle-subtitle {
+    font-size: 0.9rem;
+  }
+
+  /* Priority-based row styling */
+  .priority-high {
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+  
+  .priority-medium {
+    background-color: rgba(243, 156, 18, 0.1);
+  }
+  
+  .priority-low {
+    background-color: rgba(46, 204, 113, 0.1);
+  }
+  
+  .priority-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .priority-high .priority-badge {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .priority-medium .priority-badge {
+    background-color: #f39c12;
+    color: white;
+  }
+  
+  .priority-low .priority-badge {
+    background-color: #2ecc71;
+    color: white;
+  }
+
+  /* Hover effects for priority rows */
+  .priority-high:hover {
+    background-color: rgba(231, 76, 60, 0.15);
+  }
+  
+  .priority-medium:hover {
+    background-color: rgba(243, 156, 18, 0.15);
+  }
+  
+  .priority-low:hover {
+    background-color: rgba(46, 204, 113, 0.15);
+  }
+
+  /* Schedule button style */
+  .schedule-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .schedule-btn:hover {
+    background-color: #2980b9;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .schedule-btn i {
+    font-size: 0.9rem;
+  }
+
+  /* Service item styles */
+  .service-item {
+    padding: 12px 16px;
+    background-color: #fff;
+    border-radius: 6px;
+    margin: 0 12px 8px 12px;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+  }
+  
+  .service-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .service-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+    flex: 1;
+  }
+  
+  .priority-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
+    display: inline-block;
+  }
+  
+  .priority-badge.priority-high {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .priority-badge.priority-medium {
+    background-color: #f39c12;
+    color: white;
+  }
+  
+  .priority-badge.priority-low {
+    background-color: #28a745;
+    color: white;
+  }
+
+  #servicesTable tbody tr:hover {
+    background-color: transparent;
+  }
+
+  .service-item:hover {
+    background-color: #fff;
   }
 </style>
 

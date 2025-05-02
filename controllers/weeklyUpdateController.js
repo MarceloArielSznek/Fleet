@@ -22,18 +22,18 @@ const readJsonFile = (filePath, defaultValue = []) => {
 };
 
 // Función para verificar si un vehículo necesita servicios según las reglas
-const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
+exports.checkVehicleForServices = (vehicle, rules, serviceTypes) => {
   const currentMileage = parseInt(vehicle.mileage);
   const services = [];
 
-  // Solo verificar vehículos activos
-  if (vehicle.status !== 'active') {
+  // Solo verificar vehículos que no estén retirados
+  if (vehicle.status === 'retired') {
     return services;
   }
 
   // Obtener todos los mantenimientos completados para este vehículo
   const allMaintenances = Maintenance.findByVehicleId(vehicle.id)
-    .filter(m => m.status === 'completed')
+    .filter(m => m.status === 'completed' || m.status === 'scheduled' || m.status === 'in_progress')
     .sort((a, b) => parseInt(b.mileage) - parseInt(a.mileage));
 
   // Filtrar reglas activas que aplican a este vehículo
@@ -41,6 +41,10 @@ const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
     rule.isActive && 
     (rule.vehicleIds.length === 0 || rule.vehicleIds.includes(vehicle.id))
   );
+
+  console.log(`[${new Date().toISOString()}] Verificando servicios para vehículo ${vehicle.id} (${vehicle.name || 'Sin nombre'})`);
+  console.log(`Kilometraje actual: ${currentMileage}, Estado: ${vehicle.status}`);
+  console.log(`Reglas aplicables: ${applicableRules.length}`);
 
   // Verificar cada regla aplicable
   for (const rule of applicableRules) {
@@ -50,35 +54,43 @@ const checkVehicleForServices = (vehicle, rules, serviceTypes) => {
     }
 
     // Obtener el umbral de kilometraje de la regla
-    const mileageThreshold = rule.conditionType === 'combined' 
+    const mileageThreshold = parseInt(rule.conditionType === 'combined' 
       ? rule.conditionValue.mileage 
-      : rule.conditionValue;
+      : rule.conditionValue);
 
-    // Buscar el último mantenimiento completado para este tipo de servicio
+    // Buscar el último mantenimiento para este tipo de servicio (completado, programado o en progreso)
     const lastMaintenance = allMaintenances.find(m => m.maintenanceType === rule.serviceType);
     
-    // Si no hay mantenimiento previo o el kilometraje actual es mayor que el último mantenimiento
-    if (!lastMaintenance || currentMileage < parseInt(lastMaintenance.mileage)) {
-      console.log(`[${new Date().toISOString()}] No hay mantenimiento previo o datos inválidos para ${vehicle.id}, servicio ${rule.serviceType}`);
+    // Si hay un mantenimiento programado o en progreso, no mostrar como necesario
+    if (lastMaintenance && (lastMaintenance.status === 'scheduled' || lastMaintenance.status === 'in_progress')) {
       continue;
     }
-    
-    // Obtener el kilometraje del último mantenimiento
-    const lastMaintenanceMileage = parseInt(lastMaintenance.mileage);
-    
-    // Calcular cuándo será necesario el próximo servicio
-    const nextServiceDueMileage = lastMaintenanceMileage + mileageThreshold;
-    
-    // Calcular la distancia hasta el próximo servicio
-    const mileageUntilNextService = nextServiceDueMileage - currentMileage;
     
     // Buscamos el servicio para mostrar el nombre
     const serviceType = serviceTypes.find(s => s.id === rule.serviceType);
     const serviceName = serviceType ? serviceType.name : rule.serviceType;
-
-    console.log(`[${new Date().toISOString()}] Verificando regla: ${rule.name} para vehículo: ${vehicle.id}`);
-    console.log(`Kilometraje actual: ${currentMileage}, Último mantenimiento: ${lastMaintenanceMileage}`);
-    console.log(`Próximo servicio a: ${nextServiceDueMileage}, Faltan: ${mileageUntilNextService}, Umbral: ${mileageThreshold}`);
+    
+    // Variables para el cálculo del próximo servicio
+    let nextServiceDueMileage;
+    let mileageUntilNextService;
+    let lastMaintenanceMileage = 0;
+    
+    // Si hay un mantenimiento completado, usar su kilometraje como base
+    if (lastMaintenance && lastMaintenance.status === 'completed') {
+      lastMaintenanceMileage = parseInt(lastMaintenance.mileage);
+      nextServiceDueMileage = lastMaintenanceMileage + mileageThreshold;
+      mileageUntilNextService = nextServiceDueMileage - currentMileage;
+      
+      console.log(`[${new Date().toISOString()}] Último mantenimiento completado a: ${lastMaintenanceMileage}`);
+      console.log(`Próximo servicio a: ${nextServiceDueMileage}, Faltan: ${mileageUntilNextService}`);
+    } else {
+      // No hay mantenimiento previo
+      nextServiceDueMileage = mileageThreshold;
+      mileageUntilNextService = mileageThreshold - currentMileage;
+      
+      console.log(`[${new Date().toISOString()}] Sin mantenimiento previo para ${rule.serviceType}`);
+      console.log(`Próximo servicio a: ${nextServiceDueMileage}, Faltan: ${mileageUntilNextService}`);
+    }
 
     // Si ya se alcanzó o superó el kilometraje para el próximo servicio
     if (mileageUntilNextService <= 0) {
@@ -129,12 +141,12 @@ exports.getWeeklyUpdateView = (req, res, next) => {
     const maintenanceRules = readJsonFile(maintenanceRulesDataPath, []);
     const serviceTypes = readJsonFile(serviceTypesDataPath, []);
     
-    // Filtrar solo vehículos activos
+    // Filtrar solo vehículos que no estén retirados
     const activeVehicles = vehicles.filter(v => v.status !== 'retired');
     
     // Verificar servicios necesarios para cada vehículo
     const vehiclesWithServices = activeVehicles.map(vehicle => {
-      const services = checkVehicleForServices(vehicle, maintenanceRules, serviceTypes);
+      const services = exports.checkVehicleForServices(vehicle, maintenanceRules, serviceTypes);
       return {
         ...vehicle,
         services
@@ -191,7 +203,7 @@ exports.updateVehicleMileage = (req, res, next) => {
       // Obtener las reglas y servicios para responder con servicios recomendados
       const maintenanceRules = readJsonFile(maintenanceRulesDataPath, []);
       const serviceTypes = readJsonFile(serviceTypesDataPath, []);
-      const services = checkVehicleForServices(updated, maintenanceRules, serviceTypes);
+      const services = exports.checkVehicleForServices(updated, maintenanceRules, serviceTypes);
       
       console.log(`[${new Date().toISOString()}] Kilometraje actualizado - Vehículo ID: ${vehicleId}, Valor anterior: ${currentMileage}, Nuevo valor: ${newMileage}`);
       
@@ -275,7 +287,7 @@ exports.updateMultipleVehicles = (req, res, next) => {
         const updated = Vehicle.findByIdAndUpdate(vehicleId, vehicle);
         
         if (updated) {
-          const services = checkVehicleForServices(updated, maintenanceRules, serviceTypes);
+          const services = exports.checkVehicleForServices(updated, maintenanceRules, serviceTypes);
           
           results.updated.push({
             id: vehicleId,
