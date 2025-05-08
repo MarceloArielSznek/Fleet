@@ -200,9 +200,30 @@
                   </td>
                   <td>
                     <% 
-                      // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
-                      const scheduleDateOnly = record.scheduleDate.split('T')[0];
-                      const displayDate = new Date(scheduleDateOnly + 'T12:00:00'); // Usar mediodía para evitar cambios de fecha
+                      let displayDate;
+                      try {
+                        if (record.scheduleDate) {
+                          // Si scheduleDate es una cadena, intentar parsearla
+                          if (typeof record.scheduleDate === 'string') {
+                            const scheduleDateOnly = record.scheduleDate.split('T')[0];
+                            displayDate = new Date(scheduleDateOnly + 'T12:00:00');
+                          } else {
+                            // Si ya es un objeto Date, usarlo directamente
+                            displayDate = new Date(record.scheduleDate);
+                          }
+                        } else {
+                          // Si no hay fecha programada, usar la fecha actual
+                          displayDate = new Date();
+                        }
+                        
+                        // Verificar si la fecha es válida
+                        if (isNaN(displayDate.getTime())) {
+                          displayDate = new Date();
+                        }
+                      } catch (e) {
+                        // En caso de error, usar la fecha actual
+                        displayDate = new Date();
+                      }
                     %>
                     <%= displayDate.toLocaleDateString() %>
                   </td>

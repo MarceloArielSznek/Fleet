@@ -105,36 +105,36 @@
           <tbody>
             <% maintenanceRules.forEach(rule => { %>
               <tr>
-                <td><%= rule.name %></td>
+                <td><%= rule.name || 'No name' %></td>
                 <td>
-                  <% const serviceInfo = allServices.find(s => s.id === rule.serviceType); %>
+                  <% const serviceInfo = allServices.find(s => s.id === rule.serviceTypeId); %>
                   <% if (serviceInfo) { %>
                     <%= serviceInfo.name %>
                   <% } else { %>
-                    <%= rule.serviceType %>
+                    <%= rule.serviceTypeId %>
                   <% } %>
                 </td>
                 <td>
-                  <% if (rule.conditionType === 'mileage') { %>
-                    Every <%= rule.conditionValue.toLocaleString() %> miles
-                  <% } else if (rule.conditionType === 'time') { %>
-                    Every <%= rule.conditionValue %> days
-                  <% } else if (rule.conditionType === 'combined') { %>
-                    Every <%= rule.conditionValue.mileage.toLocaleString() %> miles or <%= rule.conditionValue.time %> days
+                  <% if (rule.mileageInterval && rule.timeIntervalDays) { %>
+                    Every <%= rule.mileageInterval.toLocaleString() %> miles or <%= rule.timeIntervalDays %> days
+                  <% } else if (rule.mileageInterval) { %>
+                    Every <%= rule.mileageInterval.toLocaleString() %> miles
+                  <% } else if (rule.timeIntervalDays) { %>
+                    Every <%= rule.timeIntervalDays %> days
                   <% } else { %>
-                    <%= rule.conditionType %>: <%= rule.conditionValue %>
+                    -
                   <% } %>
                 </td>
                 <td>
                   <% if (!rule.vehicleIds || rule.vehicleIds.length === 0) { %>
-                    All vehicles
+                    <span class="text-muted">All vehicles</span>
                   <% } else { %>
-                    <%= rule.vehicleIds.length %> specific vehicles
+                    <%= rule.vehicleIds.length %> specific vehicle<%= rule.vehicleIds.length > 1 ? 's' : '' %>
                   <% } %>
                 </td>
                 <td>
-                  <span class="badge <%= rule.isActive ? 'status-active' : 'status-retired' %>">
-                    <%= rule.isActive ? 'Active' : 'Inactive' %>
+                  <span class="badge <%= rule.active ? 'status-active' : 'status-retired' %>">
+                    <%= rule.active ? 'Active' : 'Inactive' %>
                   </span>
                 </td>
                 <td class="action-cell">
@@ -142,9 +142,9 @@
                     <i class="fas fa-edit"></i>
                   </a>
                   <form action="/maintenance/admin/rules/<%= rule.id %>/toggle" method="POST" style="display: inline;">
-                    <button type="submit" class="btn-icon <%= rule.isActive ? 'text-secondary' : 'text-success' %>" 
-                            title="<%= rule.isActive ? 'Deactivate' : 'Activate' %>">
-                      <i class="fas <%= rule.isActive ? 'fa-toggle-on' : 'fa-toggle-off' %>"></i>
+                    <button type="submit" class="btn-icon <%= rule.active ? 'text-secondary' : 'text-success' %>" 
+                            title="<%= rule.active ? 'Deactivate' : 'Activate' %>">
+                      <i class="fas <%= rule.active ? 'fa-toggle-on' : 'fa-toggle-off' %>"></i>
                     </button>
                   </form>
                   <form action="/maintenance/admin/rules/<%= rule.id %>/delete" method="POST" style="display: inline;">

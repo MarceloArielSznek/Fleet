@@ -13,9 +13,9 @@ router.post('/services/create', maintenanceAdminController.createCustomService);
 // Mostrar formulario para editar servicio
 router.get('/services/:id/edit', maintenanceAdminController.getEditServiceForm);
 // Procesar actualización de servicio
-router.post('/services/:id/edit', maintenanceAdminController.updateCustomService);
+router.post('/services/:id/edit', maintenanceAdminController.updateServiceType);
 // Eliminar servicio
-router.post('/services/:id/delete', maintenanceAdminController.deleteCustomService);
+router.post('/services/:id/delete', maintenanceAdminController.deleteServiceType);
 
 // ========== Rutas para reglas de mantenimiento ==========
 // Mostrar formulario para crear nueva regla

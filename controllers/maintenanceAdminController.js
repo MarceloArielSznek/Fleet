@@ -1,119 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-
-// Ubicación de los archivos de datos (aún no tenemos modelos)
-const maintenanceRulesDataPath = path.join(__dirname, '../data/maintenance-rules.json');
-const vehiclesDataPath = path.join(__dirname, '../data/vehicles.json');
-const serviceTypesDataPath = path.join(__dirname, '../data/serviceTypes.json');
-
-// Función auxiliar para leer datos JSON
-const readJsonFile = (filePath, defaultValue = []) => {
-  try {
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(defaultValue, null, 2), 'utf8');
-      return defaultValue;
-    }
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error(`Error al leer archivo ${filePath}:`, error);
-    return defaultValue;
-  }
-};
-
-// Función auxiliar para escribir datos JSON
-const writeJsonFile = (filePath, data) => {
-  try {
-    const dirPath = path.dirname(filePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-    return true;
-  } catch (error) {
-    console.error(`Error al escribir archivo ${filePath}:`, error);
-    return false;
-  }
-};
-
-// Array de servicios estándar predefinidos
-const standardServices = [
-  {
-    id: 'oil_change',
-    name: 'Oil Change',
-    description: 'Regular engine oil and filter replacement',
-    category: 'routine',
-    vehicleTypes: ['car', 'truck', 'van'],
-    isStandard: true
-  },
-  {
-    id: 'tire_rotation',
-    name: 'Tire Rotation',
-    description: 'Rotating tires to ensure even wear and extend tire life',
-    category: 'routine',
-    vehicleTypes: ['car', 'truck', 'van'],
-    isStandard: true
-  },
-  {
-    id: 'brake_service',
-    name: 'Brake Service',
-    description: 'Inspection and maintenance of brake system components',
-    category: 'routine',
-    vehicleTypes: ['car', 'truck', 'van', 'motorcycle'],
-    isStandard: true
-  },
-  {
-    id: 'engine_tuning',
-    name: 'Engine Tuning',
-    description: 'Adjusting engine components for optimal performance',
-    category: 'major',
-    vehicleTypes: ['car', 'truck', 'van', 'motorcycle'],
-    isStandard: true
-  },
-  {
-    id: 'battery_replacement',
-    name: 'Battery Replacement',
-    description: 'Replacing the vehicle battery',
-    category: 'routine',
-    vehicleTypes: ['car', 'truck', 'van', 'motorcycle'],
-    isStandard: true
-  },
-  {
-    id: 'air_filter',
-    name: 'Air Filter Replacement',
-    description: 'Replacing the engine air filter',
-    category: 'routine',
-    vehicleTypes: ['car', 'truck', 'van', 'motorcycle'],
-    isStandard: true
-  },
-  {
-    id: 'general_inspection',
-    name: 'General Inspection',
-    description: 'Complete vehicle inspection including all major systems',
-    category: 'routine',
-    vehicleTypes: ['car', 'truck', 'van', 'motorcycle'],
-    isStandard: true
-  }
-];
+const Vehicle = require('../models/vehicle');
+const Maintenance = require('../models/maintenance');
+const ServiceType = require('../models/serviceType');
+const MaintenanceRule = require('../models/maintenanceRule');
 
 // Dashboard de administración de mantenimiento
-exports.getAdminDashboard = (req, res, next) => {
+exports.getAdminDashboard = async (req, res, next) => {
   try {
     // Obtener tipos de servicios y reglas de mantenimiento
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
-    const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
-    const vehicles = readJsonFile(vehiclesDataPath);
+    const serviceTypes = await ServiceType.getAll();
+    const maintenanceRules = await MaintenanceRule.getAllWithVehicles();
+    const vehicles = await Vehicle.getAll();
     
-    // Identificar los servicios personalizados (los que no son del sistema)
-    const customServices = serviceTypes.filter(service => !service.isSystemDefault);
+    // Identificar los servicios personalizados (los que no son estándar)
+    const customServices = serviceTypes.filter(service => !service.isStandard);
     
-    // Mapear los servicios estándar si es necesario para compatibilidad
+    // Mapear los servicios para la vista
     const allServices = serviceTypes.map(service => ({
       id: service.id,
       name: service.name,
       description: service.description || '',
       category: service.category || 'routine',
-      isStandard: service.isSystemDefault || false,
+      isStandard: service.isStandard || false,
       active: service.active
     }));
     
@@ -123,7 +30,6 @@ exports.getAdminDashboard = (req, res, next) => {
       allServices,
       customServices,
       maintenanceRules,
-      standardServices,
       vehicles
     });
   } catch (error) {
@@ -146,212 +52,167 @@ exports.getCreateServiceForm = (req, res, next) => {
 };
 
 // Crear un nuevo tipo de servicio personalizado
-exports.createCustomService = (req, res, next) => {
+exports.createCustomService = async (req, res, next) => {
   try {
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
-    const vehicles = readJsonFile(vehiclesDataPath);
-    const maintenanceHistory = readJsonFile(path.join(__dirname, '../data/maintenance-history.json'), []);
+    const { name, description, vehicleTypes, category } = req.body;
     
-    // Verificar si ya existe un servicio en serviceTypes con el mismo ID
-    if (serviceTypes.some(service => service.id === req.body.id)) {
-      // En una implementación real, manejaríamos esto con una redirección y mensaje de error
-      throw new Error(`Ya existe un servicio con el ID ${req.body.id} en serviceTypes`);
+    // Validate required fields
+    if (!name || !vehicleTypes) {
+      return res.status(400).render('error', {
+        error: null,
+        message: 'Name and vehicle types are required'
+      });
     }
     
-    // Procesar los tipos de vehículos aplicables (para almacenamiento de información adicional)
-    let vehicleTypes = [];
-    if (req.body.vehicleTypes) {
-      vehicleTypes = Array.isArray(req.body.vehicleTypes) 
-        ? req.body.vehicleTypes 
-        : [req.body.vehicleTypes];
-    }
+    // Create new service type
+    const newServiceType = new ServiceType({
+      id: name.toLowerCase().replace(/\s+/g, '_'),
+      name,
+      description: description || '',
+      category: category || 'routine',
+      vehicleTypes: Array.isArray(vehicleTypes) ? vehicleTypes : [vehicleTypes],
+      isStandard: false,
+      active: true
+    });
     
-    // Crear el nuevo servicio para serviceTypes.json
-    const newServiceType = {
-      id: req.body.id,
-      name: req.body.name,
-      code: req.body.id,
-      description: req.body.description || '',
-      category: req.body.category || 'routine',
-      vehicleTypes: vehicleTypes,
-      isSystemDefault: false,
-      active: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    // Save to database
+    await newServiceType.save();
     
-    // Añadir el nuevo servicio a la lista
-    serviceTypes.push(newServiceType);
+    // Get all active vehicles
+    const vehicles = await Vehicle.getAll();
+    const activeVehicles = vehicles.filter(v => v.status === 'active');
+    const currentDate = new Date().toISOString();
     
-    // Guardar la lista actualizada
-    writeJsonFile(serviceTypesDataPath, serviceTypes);
-    
-    // If the service type is applicable to vans, create initial maintenance records for all vans
-    if (vehicleTypes.includes('van')) {
-      const currentDate = new Date().toISOString();
-      const vans = vehicles.filter(vehicle => vehicle.type === 'van' && vehicle.status === 'active');
-      
-      vans.forEach(van => {
-        const maintenanceRecord = {
-          id: `maint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          vehicleId: van.id,
-          maintenanceType: newServiceType.id,
-          mileage: van.mileage || "0",
-          date: currentDate,
-          status: "completed",
-          notes: `Initial ${newServiceType.name} record`,
-          createdAt: currentDate,
-          updatedAt: currentDate
-        };
-        
-        maintenanceHistory.push(maintenanceRecord);
+    // Create initial maintenance records for all active vehicles
+    for (const vehicle of activeVehicles) {
+      const maintenanceRecord = new Maintenance({
+        vehicleId: vehicle.id,
+        maintenanceType: newServiceType.id,
+        mileage: vehicle.mileage || "0",
+        scheduleDate: currentDate,
+        status: "completed",
+        notes: `Initial ${newServiceType.name} record`
       });
       
-      // Save the updated maintenance history
-      writeJsonFile(path.join(__dirname, '../data/maintenance-history.json'), maintenanceHistory);
+      await maintenanceRecord.save();
     }
     
-    console.log(`[${new Date().toISOString()}] Servicio personalizado CREADO - ID: ${newServiceType.id}, Nombre: ${newServiceType.name}`);
+    console.log(`[${new Date().toISOString()}] Tipo de servicio CREADO - ID: ${newServiceType.id}, Nombre: ${newServiceType.name}`);
+    console.table({
+      Operación: 'CREAR SERVICIO',
+      ID: newServiceType.id,
+      Nombre: newServiceType.name,
+      'Tipos de vehículo': newServiceType.vehicleTypes.join(', '),
+      Fecha: new Date().toLocaleString()
+    });
     
     res.redirect('/maintenance/admin');
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] ERROR al crear servicio personalizado:`, error);
+    console.error(`[${new Date().toISOString()}] ERROR al crear tipo de servicio:`, error);
     next(error);
   }
 };
 
-// Mostrar formulario para editar un tipo de servicio
-exports.getEditServiceForm = (req, res, next) => {
+// Mostrar formulario de edición de servicio
+exports.getEditServiceForm = async (req, res, next) => {
   try {
     const serviceId = req.params.id;
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
+    const serviceType = await ServiceType.findById(serviceId);
     
-    // Primero buscar en servicios estándar para compatibilidad con vista
-    let service = standardServices.find(s => s.id === serviceId);
-    let isStandardService = !!service;
-    
-    // Si no es un servicio estándar predefinido, buscar en serviceTypes
-    if (!service) {
-      service = serviceTypes.find(s => s.id === serviceId);
-      isStandardService = service ? service.isSystemDefault : false;
-    }
-    
-    if (!service) {
+    if (!serviceType) {
       console.warn(`[${new Date().toISOString()}] Intento de editar servicio no existente - ID: ${serviceId}`);
       return res.status(404).render('error', {
         error: null,
-        message: 'Servicio no encontrado'
+        message: 'Service type not found'
       });
     }
     
-    console.log(`[${new Date().toISOString()}] Cargando formulario de edición de servicio - ID: ${service.id}, Tipo: ${isStandardService ? 'estándar' : 'personalizado'}`);
-    
-    // Por ahora, reutilizaremos la vista de creación con los datos precargados
-    res.render('maintenance/admin-service-create', { 
-      service, 
-      isStandardService 
-    });
+    console.log(`[${new Date().toISOString()}] Cargando formulario de edición de servicio - ID: ${serviceId}`);
+    res.render('maintenance/admin-service-edit', { serviceType });
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] ERROR al cargar formulario de edición:`, error);
+    console.error(`[${new Date().toISOString()}] ERROR al cargar formulario de edición de servicio:`, error);
     next(error);
   }
 };
 
 // Actualizar un tipo de servicio
-exports.updateCustomService = (req, res, next) => {
+exports.updateServiceType = async (req, res, next) => {
   try {
     const serviceId = req.params.id;
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
+    const { name, description, vehicleTypes, category, active } = req.body;
     
-    // Verificar si es un servicio estándar predefinido
-    const isStandardService = standardServices.some(s => s.id === serviceId);
-    
-    // Procesar los tipos de vehículos aplicables
-    let vehicleTypes = [];
-    if (req.body.vehicleTypes) {
-      vehicleTypes = Array.isArray(req.body.vehicleTypes) 
-        ? req.body.vehicleTypes 
-        : [req.body.vehicleTypes];
-    }
-    
-    // Buscar el servicio en serviceTypes
-    const serviceTypeIndex = serviceTypes.findIndex(s => s.id === serviceId);
-    
-    if (serviceTypeIndex === -1) {
-      // Si no existe en serviceTypes, crear uno nuevo (puede ocurrir con servicios estándar predefinidos)
-      serviceTypes.push({
-        id: serviceId,
-        name: req.body.name,
-        code: serviceId,
-        description: req.body.description || '',
-        category: req.body.category || 'routine',
-        vehicleTypes: vehicleTypes,
-        isSystemDefault: isStandardService,
-        active: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+    // Validate required fields
+    if (!name || !vehicleTypes) {
+      return res.status(400).render('error', {
+        error: null,
+        message: 'Name and vehicle types are required'
       });
-    } else {
-      // Actualizar el servicio existente
-      serviceTypes[serviceTypeIndex] = {
-        ...serviceTypes[serviceTypeIndex],
-        name: req.body.name,
-        description: req.body.description || '',
-        category: req.body.category || serviceTypes[serviceTypeIndex].category || 'routine',
-        vehicleTypes: vehicleTypes,
-        updatedAt: new Date().toISOString()
-      };
     }
     
-    // Guardar la lista actualizada
-    writeJsonFile(serviceTypesDataPath, serviceTypes);
+    // Update service type
+    const serviceType = await ServiceType.findById(serviceId);
+    if (!serviceType) {
+      console.warn(`[${new Date().toISOString()}] Intento de actualizar servicio no existente - ID: ${serviceId}`);
+      return res.status(404).render('error', {
+        error: null,
+        message: 'Service type not found'
+      });
+    }
     
-    console.log(`[${new Date().toISOString()}] Servicio ${isStandardService ? 'estándar' : 'personalizado'} ACTUALIZADO - ID: ${serviceId}`);
+    // Update fields
+    serviceType.name = name;
+    serviceType.description = description;
+    serviceType.vehicleTypes = Array.isArray(vehicleTypes) ? vehicleTypes : [vehicleTypes];
+    serviceType.category = category;
+    serviceType.active = active === 'true' || active === true;
+    
+    // Save to database
+    await ServiceType.findByIdAndUpdate(serviceId, serviceType);
+    
+    console.log(`[${new Date().toISOString()}] Tipo de servicio ACTUALIZADO - ID: ${serviceId}`);
+    console.table({
+      Operación: 'ACTUALIZAR SERVICIO',
+      ID: serviceId,
+      Nombre: name,
+      'Tipos de vehículo': Array.isArray(vehicleTypes) ? vehicleTypes.join(', ') : vehicleTypes,
+      Activo: active,
+      Fecha: new Date().toLocaleString()
+    });
     
     res.redirect('/maintenance/admin');
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] ERROR al actualizar servicio:`, error);
+    console.error(`[${new Date().toISOString()}] ERROR al actualizar tipo de servicio:`, error);
     next(error);
   }
 };
 
 // Eliminar un tipo de servicio
-exports.deleteCustomService = (req, res, next) => {
+exports.deleteServiceType = async (req, res, next) => {
   try {
     const serviceId = req.params.id;
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
     
-    // Buscar el índice del servicio
-    const serviceTypeIndex = serviceTypes.findIndex(s => s.id === serviceId);
+    // Find and delete service type
+    const serviceType = await ServiceType.findByIdAndDelete(serviceId);
     
-    if (serviceTypeIndex === -1) {
+    if (!serviceType) {
       console.warn(`[${new Date().toISOString()}] Intento de eliminar servicio no existente - ID: ${serviceId}`);
       return res.status(404).render('error', {
         error: null,
-        message: 'Servicio no encontrado'
+        message: 'Service type not found'
       });
     }
     
-    // Verificar que no es un servicio del sistema
-    if (serviceTypes[serviceTypeIndex].isSystemDefault) {
-      console.warn(`[${new Date().toISOString()}] Intento de eliminar servicio del sistema - ID: ${serviceId}`);
-      return res.status(403).render('error', {
-        error: null,
-        message: 'No se puede eliminar un servicio predefinido del sistema'
-      });
-    }
-    
-    // Eliminar el servicio
-    const deletedService = serviceTypes.splice(serviceTypeIndex, 1)[0];
-    
-    // Guardar la lista actualizada
-    writeJsonFile(serviceTypesDataPath, serviceTypes);
-    
-    console.log(`[${new Date().toISOString()}] Servicio personalizado ELIMINADO - ID: ${deletedService.id}, Nombre: ${deletedService.name}`);
+    console.log(`[${new Date().toISOString()}] Tipo de servicio ELIMINADO - ID: ${serviceId}`);
+    console.table({
+      Operación: 'ELIMINAR SERVICIO',
+      ID: serviceId,
+      Nombre: serviceType.name,
+      Fecha: new Date().toLocaleString()
+    });
     
     res.redirect('/maintenance/admin');
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] ERROR al eliminar servicio personalizado:`, error);
+    console.error(`[${new Date().toISOString()}] ERROR al eliminar tipo de servicio:`, error);
     next(error);
   }
 };
@@ -359,17 +220,30 @@ exports.deleteCustomService = (req, res, next) => {
 // ---------------------- Reglas de mantenimiento ----------------------
 
 // Mostrar formulario para crear una nueva regla
-exports.getCreateRuleForm = (req, res, next) => {
+exports.getCreateRuleForm = async (req, res, next) => {
   try {
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
-    const vehicles = readJsonFile(vehiclesDataPath);
+    const serviceTypes = await ServiceType.getAll();
+    const vehicles = await Vehicle.getAll();
     
-    // Filtrar solo los servicios personalizados que no son del sistema
-    const customServices = serviceTypes.filter(service => !service.isSystemDefault);
+    // Identificar los servicios personalizados (los que no son estándar)
+    const customServices = serviceTypes.filter(service => !service.isStandard);
+    
+    // Mapear todos los servicios para la vista
+    const allServices = serviceTypes.map(service => ({
+      id: service.id,
+      name: service.name,
+      description: service.description || '',
+      category: service.category || 'routine',
+      isStandard: service.isStandard || false,
+      active: service.active
+    }));
     
     console.log(`[${new Date().toISOString()}] Cargando formulario para crear nueva regla de mantenimiento`);
-    
-    res.render('maintenance/admin-rule-create', { customServices, vehicles });
+    res.render('maintenance/admin-rule-create', { 
+      allServices,
+      customServices,
+      vehicles
+    });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al cargar formulario de creación de regla:`, error);
     next(error);
@@ -377,55 +251,53 @@ exports.getCreateRuleForm = (req, res, next) => {
 };
 
 // Crear una nueva regla de mantenimiento
-exports.createMaintenanceRule = (req, res, next) => {
+exports.createMaintenanceRule = async (req, res, next) => {
   try {
-    const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
+    const maintenanceRules = await MaintenanceRule.getAll();
     
-    // Determinar el tipo de condición y sus valores
-    let conditionValue;
+    // Determinar los valores según el tipo de condición
+    let mileageInterval = null;
+    let timeIntervalDays = null;
     if (req.body.conditionType === 'mileage') {
-      conditionValue = parseInt(req.body.mileageValue);
+      mileageInterval = req.body.mileageThreshold ? parseInt(req.body.mileageThreshold) : null;
     } else if (req.body.conditionType === 'time') {
-      conditionValue = parseInt(req.body.timeValue);
+      timeIntervalDays = req.body.timeThreshold ? parseInt(req.body.timeThreshold) : null;
     } else if (req.body.conditionType === 'combined') {
-      conditionValue = {
-        mileage: parseInt(req.body.mileageValue),
-        time: parseInt(req.body.timeValue)
-      };
+      mileageInterval = req.body.mileageThreshold ? parseInt(req.body.mileageThreshold) : null;
+      timeIntervalDays = req.body.timeThreshold ? parseInt(req.body.timeThreshold) : null;
     }
-    
-    // Procesar los vehículos seleccionados
-    let vehicleIds = [];
-    // Si "allVehicles" está marcado, dejamos el array vacío para indicar que aplica a todos
-    if (!req.body.allVehicles && req.body.vehicleIds) {
-      vehicleIds = Array.isArray(req.body.vehicleIds) 
-        ? req.body.vehicleIds 
-        : [req.body.vehicleIds];
-    }
-    
     // Crear nueva regla
-    const newRule = {
-      id: Date.now().toString(),
+    const newRule = new MaintenanceRule({
       name: req.body.name,
-      serviceType: req.body.serviceType,
-      conditionType: req.body.conditionType,
-      conditionValue: conditionValue,
-      priority: req.body.priority || 'medium',
-      vehicleIds: vehicleIds,
-      description: req.body.description || '',
-      isActive: req.body.isActive === 'on' || req.body.isActive === true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+      description: req.body.description,
+      serviceTypeId: req.body.serviceType,
+      mileageInterval,
+      timeIntervalDays,
+      priority: req.body.priority || 'normal',
+      active: true
+    });
     
-    // Añadir la nueva regla a la lista
-    maintenanceRules.push(newRule);
+    // Save to database
+    const saved = await newRule.save();
     
-    // Guardar la lista actualizada
-    writeJsonFile(maintenanceRulesDataPath, maintenanceRules);
+    if (saved) {
+      // Guardar relación con vehículos seleccionados
+      let vehicleIds = req.body.vehicleIds;
+      if (typeof vehicleIds === 'string') vehicleIds = [vehicleIds];
+      if (vehicleIds && vehicleIds.length > 0) {
+        await MaintenanceRule.addVehiclesToRule(newRule.id, vehicleIds);
+      }
+    }
     
-    console.log(`[${new Date().toISOString()}] Regla de mantenimiento CREADA - ID: ${newRule.id}, Nombre: ${newRule.name}`);
+    if (!saved) {
+      console.error(`[${new Date().toISOString()}] Error al guardar la regla de mantenimiento`);
+      return res.status(400).render('error', {
+        error: null,
+        message: 'Error al crear la regla de mantenimiento. Verifique que todos los campos requeridos estén completos.'
+      });
+    }
     
+    console.log(`[${new Date().toISOString()}] Regla de mantenimiento CREADA - ID: ${newRule.id}`);
     res.redirect('/maintenance/admin');
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al crear regla de mantenimiento:`, error);
@@ -433,96 +305,75 @@ exports.createMaintenanceRule = (req, res, next) => {
   }
 };
 
-// Mostrar formulario para editar una regla
-exports.getEditRuleForm = (req, res, next) => {
+// Mostrar formulario de edición de regla
+exports.getEditRuleForm = async (req, res, next) => {
   try {
     const ruleId = req.params.id;
-    const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
-    const serviceTypes = readJsonFile(serviceTypesDataPath);
-    const vehicles = readJsonFile(vehiclesDataPath);
-    
-    // Filtrar solo los servicios personalizados que no son del sistema
-    const customServices = serviceTypes.filter(service => !service.isSystemDefault);
-    
+    const maintenanceRules = await MaintenanceRule.getAllWithVehicles();
+    const serviceTypes = await ServiceType.getAll();
+    const vehicles = await Vehicle.getAll();
+    // Mapear todos los servicios para la vista
+    const allServices = serviceTypes.map(service => ({
+      id: service.id,
+      name: service.name,
+      description: service.description || '',
+      category: service.category || 'routine',
+      isStandard: service.isStandard || false,
+      active: service.active
+    }));
     // Buscar la regla por ID
     const rule = maintenanceRules.find(r => r.id === ruleId);
-    
     if (!rule) {
-      console.warn(`[${new Date().toISOString()}] Intento de editar regla no existente - ID: ${ruleId}`);
       return res.status(404).render('error', {
         error: null,
         message: 'Regla no encontrada'
       });
     }
-    
-    console.log(`[${new Date().toISOString()}] Cargando formulario de edición de regla - ID: ${rule.id}`);
-    
-    // Reutilizaremos la vista de creación con los datos precargados
-    res.render('maintenance/admin-rule-create', { rule, customServices, vehicles });
+    res.render('maintenance/admin-rule-edit', { 
+      rule,
+      allServices,
+      vehicles
+    });
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al cargar formulario de edición de regla:`, error);
     next(error);
   }
 };
 
-// Actualizar una regla
-exports.updateMaintenanceRule = (req, res, next) => {
+// Actualizar una regla de mantenimiento
+exports.updateMaintenanceRule = async (req, res, next) => {
   try {
     const ruleId = req.params.id;
-    const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
-    
-    // Buscar el índice de la regla
-    const ruleIndex = maintenanceRules.findIndex(r => r.id === ruleId);
-    
-    if (ruleIndex === -1) {
-      console.warn(`[${new Date().toISOString()}] Intento de actualizar regla no existente - ID: ${ruleId}`);
-      return res.status(404).render('error', {
-        error: null,
-        message: 'Regla no encontrada'
-      });
-    }
-    
-    // Determinar el tipo de condición y sus valores
-    let conditionValue;
+    // Determinar los valores según el tipo de condición
+    let mileageInterval = null;
+    let timeIntervalDays = null;
     if (req.body.conditionType === 'mileage') {
-      conditionValue = parseInt(req.body.mileageValue);
+      mileageInterval = req.body.mileageThreshold ? parseInt(req.body.mileageThreshold) : null;
     } else if (req.body.conditionType === 'time') {
-      conditionValue = parseInt(req.body.timeValue);
+      timeIntervalDays = req.body.timeThreshold ? parseInt(req.body.timeThreshold) : null;
     } else if (req.body.conditionType === 'combined') {
-      conditionValue = {
-        mileage: parseInt(req.body.mileageValue),
-        time: parseInt(req.body.timeValue)
-      };
+      mileageInterval = req.body.mileageThreshold ? parseInt(req.body.mileageThreshold) : null;
+      timeIntervalDays = req.body.timeThreshold ? parseInt(req.body.timeThreshold) : null;
     }
-    
-    // Procesar los vehículos seleccionados
-    let vehicleIds = [];
-    // Si "allVehicles" está marcado, dejamos el array vacío para indicar que aplica a todos
-    if (!req.body.allVehicles && req.body.vehicleIds) {
-      vehicleIds = Array.isArray(req.body.vehicleIds) 
-        ? req.body.vehicleIds 
-        : [req.body.vehicleIds];
-    }
-    
     // Actualizar la regla
-    maintenanceRules[ruleIndex] = {
-      ...maintenanceRules[ruleIndex],
+    const updatedRule = new MaintenanceRule({
+      id: ruleId,
       name: req.body.name,
-      serviceType: req.body.serviceType,
-      conditionType: req.body.conditionType,
-      conditionValue: conditionValue,
-      priority: req.body.priority || 'medium',
-      vehicleIds: vehicleIds,
-      description: req.body.description || '',
-      isActive: req.body.isActive === 'on' || req.body.isActive === true,
-      updatedAt: new Date().toISOString()
-    };
-    
-    // Guardar la lista actualizada
-    writeJsonFile(maintenanceRulesDataPath, maintenanceRules);
-    
-    console.log(`[${new Date().toISOString()}] Regla de mantenimiento ACTUALIZADA - ID: ${ruleId}`);
-    
+      description: req.body.description,
+      serviceTypeId: req.body.serviceType,
+      mileageInterval,
+      timeIntervalDays,
+      priority: req.body.priority || 'normal',
+      active: req.body.isActive === 'on' || req.body.isActive === true
+    });
+    await updatedRule.save();
+    // Actualizar vehículos asociados
+    await MaintenanceRule.removeVehiclesFromRule(ruleId);
+    let vehicleIds = req.body.vehicleIds;
+    if (typeof vehicleIds === 'string') vehicleIds = [vehicleIds];
+    if (vehicleIds && vehicleIds.length > 0) {
+      await MaintenanceRule.addVehiclesToRule(ruleId, vehicleIds);
+    }
     res.redirect('/maintenance/admin');
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al actualizar regla de mantenimiento:`, error);
@@ -530,11 +381,11 @@ exports.updateMaintenanceRule = (req, res, next) => {
   }
 };
 
-// Cambiar el estado (activo/inactivo) de una regla
-exports.toggleRuleStatus = (req, res, next) => {
+// Cambiar el estado de una regla (activar/desactivar)
+exports.toggleRuleStatus = async (req, res, next) => {
   try {
     const ruleId = req.params.id;
-    const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
+    const maintenanceRules = await MaintenanceRule.getAll();
     
     // Buscar el índice de la regla
     const ruleIndex = maintenanceRules.findIndex(r => r.id === ruleId);
@@ -551,11 +402,10 @@ exports.toggleRuleStatus = (req, res, next) => {
     maintenanceRules[ruleIndex].isActive = !maintenanceRules[ruleIndex].isActive;
     maintenanceRules[ruleIndex].updatedAt = new Date().toISOString();
     
-    // Guardar la lista actualizada
-    writeJsonFile(maintenanceRulesDataPath, maintenanceRules);
+    // Save to database
+    await MaintenanceRule.findByIdAndUpdate(ruleId, maintenanceRules[ruleIndex]);
     
     console.log(`[${new Date().toISOString()}] Estado de regla CAMBIADO - ID: ${ruleId}, Nuevo estado: ${maintenanceRules[ruleIndex].isActive ? 'activo' : 'inactivo'}`);
-    
     res.redirect('/maintenance/admin');
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al cambiar estado de regla:`, error);
@@ -563,31 +413,14 @@ exports.toggleRuleStatus = (req, res, next) => {
   }
 };
 
-// Eliminar una regla
-exports.deleteMaintenanceRule = (req, res, next) => {
+// Eliminar una regla de mantenimiento
+exports.deleteMaintenanceRule = async (req, res, next) => {
   try {
     const ruleId = req.params.id;
-    const maintenanceRules = readJsonFile(maintenanceRulesDataPath);
-    
-    // Buscar el índice de la regla
-    const ruleIndex = maintenanceRules.findIndex(r => r.id === ruleId);
-    
-    if (ruleIndex === -1) {
-      console.warn(`[${new Date().toISOString()}] Intento de eliminar regla no existente - ID: ${ruleId}`);
-      return res.status(404).render('error', {
-        error: null,
-        message: 'Regla no encontrada'
-      });
-    }
-    
+    // Eliminar asociaciones de vehículos
+    await MaintenanceRule.removeVehiclesFromRule(ruleId);
     // Eliminar la regla
-    const deletedRule = maintenanceRules.splice(ruleIndex, 1)[0];
-    
-    // Guardar la lista actualizada
-    writeJsonFile(maintenanceRulesDataPath, maintenanceRules);
-    
-    console.log(`[${new Date().toISOString()}] Regla de mantenimiento ELIMINADA - ID: ${deletedRule.id}, Nombre: ${deletedRule.name}`);
-    
+    await MaintenanceRule.delete(ruleId);
     res.redirect('/maintenance/admin');
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al eliminar regla de mantenimiento:`, error);

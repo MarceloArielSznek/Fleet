@@ -1,5 +1,6 @@
 const Vehicle = require('../models/vehicle');
 const Maintenance = require('../models/maintenance');
+const ServiceType = require('../models/serviceType');
 const fs = require('fs');
 const path = require('path');
 
@@ -21,18 +22,16 @@ const readJsonFile = (filePath, defaultValue = []) => {
 };
 
 // Página de inicio con carrusel
-exports.getHomePage = (req, res, next) => {
+exports.getHomePage = async (req, res, next) => {
   try {
-    const vehicles = Vehicle.getAll();
-    const maintenanceRecords = Maintenance.getAllWithVehicles();
+    const vehicles = await Vehicle.getAll();
+    const maintenanceRecords = await Maintenance.getAllWithVehicles();
+    const serviceTypes = await ServiceType.getAllActive();
     
     // Filtrar mantenimientos programados o en progreso
     const activeMaintenanceRecords = maintenanceRecords.filter(
       record => record.status === 'scheduled' || record.status === 'in_progress'
     );
-    
-    // Obtener los tipos de servicio del archivo JSON
-    const serviceTypes = readJsonFile(serviceTypesDataPath, []);
     
     console.log(`[${new Date().toISOString()}] Cargando página de inicio - Vehículos: ${vehicles.length}, Mantenimientos activos: ${activeMaintenanceRecords.length}`);
     
@@ -48,18 +47,16 @@ exports.getHomePage = (req, res, next) => {
 };
 
 // Obtener todos los vehículos
-exports.getAllVehicles = (req, res, next) => {
+exports.getAllVehicles = async (req, res, next) => {
   try {
-    const vehicles = Vehicle.getAll();
+    const vehicles = await Vehicle.getAll();
+    const serviceTypes = await ServiceType.getAllActive();
     
     // Extraer datos para filtros
     const vehicleTypes = [...new Set(vehicles.map(v => v.type).filter(Boolean))].sort();
     const brands = [...new Set(vehicles.map(v => v.brand).filter(Boolean))].sort();
     const statuses = [...new Set(vehicles.map(v => v.status).filter(Boolean))].sort();
-    const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort((a, b) => b - a); // Ordenar años de forma descendente
-    
-    // Obtener los tipos de servicio del archivo JSON
-    const serviceTypes = readJsonFile(serviceTypesDataPath, []);
+    const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort((a, b) => b - a);
     
     console.log(`[${new Date().toISOString()}] Consultando lista de vehículos - Total: ${vehicles.length}`);
     
@@ -85,7 +82,7 @@ exports.getCreateForm = (req, res) => {
 };
 
 // Crear un nuevo vehículo
-exports.createVehicle = (req, res, next) => {
+exports.createVehicle = async (req, res, next) => {
   try {
     const vehicleData = req.body;
     
@@ -96,34 +93,26 @@ exports.createVehicle = (req, res, next) => {
     }
     
     const newVehicle = new Vehicle(vehicleData);
-    newVehicle.save();
+    await newVehicle.save();
     
-    // If the vehicle is a van, create initial maintenance records for all service types
-    if (newVehicle.type === 'van') {
-      const serviceTypes = readJsonFile(serviceTypesDataPath, []);
-      const currentDate = new Date().toISOString();
+    // Create initial maintenance records for all service types
+    const serviceTypes = await ServiceType.getAllActive();
+    const currentDate = new Date().toISOString();
+    
+    for (const serviceType of serviceTypes) {
+      const maintenanceRecord = {
+        vehicleId: newVehicle.id,
+        maintenanceType: serviceType.id,
+        mileage: "0",
+        date: currentDate,
+        status: "completed",
+        notes: `Initial ${serviceType.name} record`,
+        createdAt: currentDate,
+        updatedAt: currentDate
+      };
       
-      serviceTypes.forEach(serviceType => {
-        const maintenanceRecord = {
-          id: `maint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          vehicleId: newVehicle.id,
-          maintenanceType: serviceType.id,
-          mileage: "0",
-          date: currentDate,
-          status: "completed",
-          notes: `Initial ${serviceType.name} record`,
-          createdAt: currentDate,
-          updatedAt: currentDate
-        };
-        
-        // Add the maintenance record to the history
-        const maintenanceHistory = readJsonFile(path.join(__dirname, '../data/maintenance-history.json'), []);
-        maintenanceHistory.push(maintenanceRecord);
-        fs.writeFileSync(
-          path.join(__dirname, '../data/maintenance-history.json'),
-          JSON.stringify(maintenanceHistory, null, 2)
-        );
-      });
+      const newMaintenance = new Maintenance(maintenanceRecord);
+      await newMaintenance.save();
     }
     
     console.log(`[${new Date().toISOString()}] Vehículo CREADO - ID: ${newVehicle.id}, Marca: ${newVehicle.brand}, Modelo: ${newVehicle.model}`);
@@ -140,23 +129,14 @@ exports.createVehicle = (req, res, next) => {
     res.redirect('/');
   } catch (error) {
     console.error(`[${new Date().toISOString()}] ERROR al crear vehículo:`, error);
-    
-    // Si hay un archivo subido, eliminar en caso de error
-    if (req.file) {
-      const filePath = path.join(__dirname, '../public/images/vehicles', req.file.filename);
-      fs.unlink(filePath, err => {
-        if (err) console.error('Error al eliminar archivo:', err);
-      });
-    }
-    
     next(error);
   }
 };
 
 // Mostrar detalles de un vehículo
-exports.getVehicleDetails = (req, res, next) => {
+exports.getVehicleDetails = async (req, res, next) => {
   try {
-    const vehicle = Vehicle.findById(req.params.id);
+    const vehicle = await Vehicle.findById(req.params.id);
     if (!vehicle) {
       console.warn(`[${new Date().toISOString()}] Intento de acceder a vehículo no existente - ID: ${req.params.id}`);
       return res.status(404).render('error', {
@@ -166,18 +146,27 @@ exports.getVehicleDetails = (req, res, next) => {
     }
     
     // Obtener registros de mantenimiento para este vehículo
-    let maintenanceRecords = Maintenance.findByVehicleId(vehicle.id);
+    let maintenanceRecords = await Maintenance.findByVehicleId(vehicle.id);
     
-    // Ordenar los registros por fecha más reciente primero
-    maintenanceRecords.sort((a, b) => {
+    // Ordenar los registros por fecha más reciente primero y asegurar que las fechas estén formateadas
+    maintenanceRecords = maintenanceRecords.map(record => {
+      // Asegurar que las fechas estén en formato ISO
+      if (record.scheduleDate) {
+        record.scheduleDate = new Date(record.scheduleDate).toISOString();
+      }
+      if (record.completionDate) {
+        record.completionDate = new Date(record.completionDate).toISOString();
+      }
+      return record;
+    }).sort((a, b) => {
       // Si hay fecha de finalización, usar esa para la comparación
       const dateA = a.completionDate ? new Date(a.completionDate) : new Date(a.scheduleDate);
       const dateB = b.completionDate ? new Date(b.completionDate) : new Date(b.scheduleDate);
       return dateB - dateA; // Orden descendente (más reciente primero)
     });
     
-    // Obtener los tipos de servicio del archivo JSON
-    const serviceTypes = readJsonFile(serviceTypesDataPath, []);
+    // Obtener los tipos de servicio de la base de datos
+    const serviceTypes = await ServiceType.getAllActive();
     
     console.log(`[${new Date().toISOString()}] Consultando detalles de vehículo - ID: ${vehicle.id}, Mantenimientos: ${maintenanceRecords.length}`);
     res.render('vehicles/details', { vehicle, maintenanceRecords, serviceTypes });
@@ -188,9 +177,9 @@ exports.getVehicleDetails = (req, res, next) => {
 };
 
 // Mostrar formulario de edición
-exports.getEditForm = (req, res, next) => {
+exports.getEditForm = async (req, res, next) => {
   try {
-    const vehicle = Vehicle.findById(req.params.id);
+    const vehicle = await Vehicle.findById(req.params.id);
     if (!vehicle) {
       console.warn(`[${new Date().toISOString()}] Intento de editar vehículo no existente - ID: ${req.params.id}`);
       return res.status(404).render('error', {
@@ -208,10 +197,10 @@ exports.getEditForm = (req, res, next) => {
 };
 
 // Actualizar un vehículo
-exports.updateVehicle = (req, res, next) => {
+exports.updateVehicle = async (req, res, next) => {
   try {
     const vehicleId = req.params.id;
-    const oldVehicle = Vehicle.findById(vehicleId);
+    const oldVehicle = await Vehicle.findById(vehicleId);
     
     if (!oldVehicle) {
       console.warn(`[${new Date().toISOString()}] Intento de actualizar vehículo no existente - ID: ${vehicleId}`);
@@ -252,7 +241,7 @@ exports.updateVehicle = (req, res, next) => {
     // Quitar el campo deleteImage para no guardarlo en el modelo
     delete vehicleData.deleteImage;
     
-    const updatedVehicle = Vehicle.findByIdAndUpdate(vehicleId, vehicleData);
+    const updatedVehicle = await Vehicle.findByIdAndUpdate(vehicleId, vehicleData);
     
     console.log(`[${new Date().toISOString()}] Vehículo ACTUALIZADO - ID: ${updatedVehicle.id}`);
     console.table({
@@ -284,10 +273,10 @@ exports.updateVehicle = (req, res, next) => {
 };
 
 // Eliminar un vehículo
-exports.deleteVehicle = (req, res, next) => {
+exports.deleteVehicle = async (req, res, next) => {
   try {
     const vehicleId = req.params.id;
-    const deletedVehicle = Vehicle.findByIdAndDelete(vehicleId);
+    const deletedVehicle = await Vehicle.findByIdAndDelete(vehicleId);
     
     if (!deletedVehicle) {
       console.warn(`[${new Date().toISOString()}] Intento de eliminar vehículo no existente - ID: ${vehicleId}`);

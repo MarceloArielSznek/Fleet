@@ -134,17 +134,31 @@
                   <td>
                     <% if (record.completionDate) { %>
                       <% 
-                        // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
-                        const completionDateOnly = record.completionDate.split('T')[0];
-                        const displayDate = new Date(completionDateOnly + 'T12:00:00'); // Usar mediodía para evitar cambios de fecha
+                        let displayDate;
+                        try {
+                          // Intentar parsear la fecha de finalización
+                          displayDate = new Date(record.completionDate);
+                          if (isNaN(displayDate.getTime())) {
+                            displayDate = new Date(); // Usar fecha actual si la fecha no es válida
+                          }
+                        } catch (e) {
+                          displayDate = new Date(); // Usar fecha actual si hay error
+                        }
                       %>
                       <%= displayDate.toLocaleDateString() %> 
                       <small class="text-muted">(Completed)</small>
                     <% } else { %>
                       <% 
-                        // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
-                        const scheduleDateOnly = record.scheduleDate.split('T')[0];
-                        const displayDate = new Date(scheduleDateOnly + 'T12:00:00'); // Usar mediodía para evitar cambios de fecha
+                        let displayDate;
+                        try {
+                          // Intentar parsear la fecha programada
+                          displayDate = record.scheduleDate ? new Date(record.scheduleDate) : new Date();
+                          if (isNaN(displayDate.getTime())) {
+                            displayDate = new Date(); // Usar fecha actual si la fecha no es válida
+                          }
+                        } catch (e) {
+                          displayDate = new Date(); // Usar fecha actual si hay error
+                        }
                       %>
                       <%= displayDate.toLocaleDateString() %>
                     <% } %>
@@ -162,7 +176,18 @@
                     </span>
                   </td>
                   <td><%= record.mileage ? record.mileage.toLocaleString() + ' miles' : 'N/A' %></td>
-                  <td><%= record.cost ? '$' + record.cost.toFixed(2) : 'N/A' %></td>
+                  <td>
+                    <% 
+                      let costDisplay = 'N/A';
+                      if (record.cost) {
+                        const cost = parseFloat(record.cost);
+                        if (!isNaN(cost)) {
+                          costDisplay = '$' + cost.toFixed(2);
+                        }
+                      }
+                    %>
+                    <%= costDisplay %>
+                  </td>
                   <td class="action-cell">
                     <a href="/maintenance/<%= record.id %>" class="btn-icon text-primary" title="View details">
                       <i class="fas fa-eye"></i>
